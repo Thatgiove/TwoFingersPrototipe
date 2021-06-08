@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class CombatGameMode : MonoBehaviour
 {
     [SerializeField] Timer _Timer;
-    Canvas canvas;
+    MainCanvas canvas;
     GameObject[] Characters;
 
     List<GameObject> ShuffledCharacters = new List<GameObject>();
@@ -57,7 +57,8 @@ public class CombatGameMode : MonoBehaviour
     void CreateTurn()
     {
         float imgOffset = -300f;
-        canvas = (Canvas)GameObject.FindObjectOfType(typeof(Canvas));
+        //TODO -- qual è il modo migliore per selezionare il canvas?
+        canvas = GameObject.FindObjectOfType<MainCanvas>();
 
         if (Characters == null)
             Characters = GameObject.FindGameObjectsWithTag("Character");
@@ -106,7 +107,7 @@ public class CombatGameMode : MonoBehaviour
 
     void DestroyTurn()
     {
-        var charactersInGame = GameObject.FindObjectsOfType<CharacterIcon>();
+        var charactersInGame= GameObject.FindObjectsOfType<CharacterIcon>();
 
         foreach (var ele in charactersInGame)
         {
