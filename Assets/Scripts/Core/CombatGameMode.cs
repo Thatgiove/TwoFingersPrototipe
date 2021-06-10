@@ -10,12 +10,14 @@ public class CombatGameMode : MonoBehaviour
     [SerializeField] Timer _Timer;
     MainCanvas canvas;
     GameObject[] Characters;
+    //TODO togliere public
+    //Il personaggio nel campo di battaglia attualmente in turno
+    public GameObject CharacterInTheTurn;
 
-    List<GameObject> ShuffledCharacters = new List<GameObject>();
-
+    //TODO unificare le code
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
+    Queue<GameObject> CharacterQueue = new Queue<GameObject>();
 
-   
     void Start()
     {
         CreateTurn();
@@ -23,26 +25,31 @@ public class CombatGameMode : MonoBehaviour
 
     void Update()
     {
-        if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0)
+        if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
         {
-           
+            CharacterInTheTurn = null;
             //distrugge il flag della turnazione precedente
             Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject); 
+            
             TurnQueue.Dequeue();
-            if(TurnQueue.Count > 0) 
+            CharacterQueue.Dequeue();
+          
+            if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
+            {
                 PutIconAtFirstElementOfQueue();
+                CharacterInTheTurn = CharacterQueue.Peek();
+            }      
             else
             {
                 DestroyTurn();
                 CreateTurn();
             }
-               
         }
-       
     }
 
     void PutIconAtFirstElementOfQueue()
     {
+        CharacterInTheTurn = CharacterQueue.Peek();
         GameObject _TurnIcon = new GameObject("_TurnIcon");
         Image turnIcon = _TurnIcon.AddComponent<Image>();
         turnIcon.color = Color.red;
@@ -99,6 +106,8 @@ public class CombatGameMode : MonoBehaviour
 
                 //Mette i personaggi nella coda
                 TurnQueue.Enqueue(imgObject);
+                //TODO : creare una sola coda
+                CharacterQueue.Enqueue(character); 
             }
         }
 

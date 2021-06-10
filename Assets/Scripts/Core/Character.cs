@@ -18,7 +18,7 @@ public class Character : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        print(gameObject.name + "Health =" + MaxHealth);
+        //print(gameObject.name + "Health =" + MaxHealth);
     }
 
     // Update is called once per frame
