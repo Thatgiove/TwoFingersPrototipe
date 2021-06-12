@@ -7,7 +7,7 @@ public class Timer : MonoBehaviour
 {
     public float totalTurnTime = 10;
     public float timeRemaining = 10;
-    
+
     public bool isTurnOver;
     public GameObject TurnBar;
     private Slider slider;
@@ -51,18 +51,32 @@ public class Timer : MonoBehaviour
         float minutes = Mathf.FloorToInt(timeToDisplay / 60);
         float seconds = Mathf.FloorToInt(timeToDisplay % 60);
         //Debug.Log(string.Format("{0:00}:{1:00}", minutes, seconds));
-        if(timeText)
+        if (timeText)
             timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     public void Time2X()
     {
         if (timerIsRunning && !isTurnOver)
+        {
             totalTurnTime *= 2;
+            timeRemaining = totalTurnTime;
+            slider.maxValue = timeRemaining;
+        }
+            
     }
     public void Time_1_2()
     {
-        if (timerIsRunning &&!isTurnOver)
+        if (timerIsRunning && !isTurnOver)
+        {
             totalTurnTime *= .5f;
+            timeRemaining = totalTurnTime;
+            slider.maxValue = timeRemaining;
+        }
+            
+    }
+    public void Time_Zero()
+    {
+        timeRemaining = 0;
     }
 }

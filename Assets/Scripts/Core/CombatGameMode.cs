@@ -13,7 +13,7 @@ public class CombatGameMode : MonoBehaviour
     //TODO togliere public
     //Il personaggio nel campo di battaglia attualmente in turno
     public GameObject CharacterInTheTurn;
-
+    Text _enemyTurnText;
     //TODO unificare le code
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
@@ -25,6 +25,11 @@ public class CombatGameMode : MonoBehaviour
 
     void Update()
     {
+        ///////////////TODO TMP///////////////////////
+        if (Input.GetKeyDown("space") && !isPlayerTurn())
+                 _Timer.Time_Zero();
+        ////////////////////////////////////////////
+
         if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
         {
             CharacterInTheTurn = null;
@@ -38,7 +43,8 @@ public class CombatGameMode : MonoBehaviour
             {
                 PutIconAtFirstElementOfQueue();
                 CharacterInTheTurn = CharacterQueue.Peek();
-            }      
+                HandleInput();
+            }
             else
             {
                 DestroyTurn();
@@ -50,6 +56,8 @@ public class CombatGameMode : MonoBehaviour
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek();
+        HandleInput();
+
         GameObject _TurnIcon = new GameObject("_TurnIcon");
         Image turnIcon = _TurnIcon.AddComponent<Image>();
         turnIcon.color = Color.red;
@@ -66,6 +74,8 @@ public class CombatGameMode : MonoBehaviour
         float imgOffset = -300f;
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = GameObject.FindObjectOfType<MainCanvas>();
+        _enemyTurnText =  canvas.transform.Find("EnemyTurnText").GetComponent<Text>(); //TODO non prendere by name
+        _enemyTurnText.enabled = false;
 
         if (Characters == null)
             Characters = GameObject.FindGameObjectsWithTag("Character");
@@ -110,7 +120,6 @@ public class CombatGameMode : MonoBehaviour
                 CharacterQueue.Enqueue(character); 
             }
         }
-
         PutIconAtFirstElementOfQueue();
     }
 
@@ -122,6 +131,29 @@ public class CombatGameMode : MonoBehaviour
         {
             Destroy(ele.gameObject);
         }
+    }
+
+    void HandleInput()
+    {
+        if (_enemyTurnText)
+            _enemyTurnText.enabled = !isPlayerTurn();
+
+        if (!isPlayerTurn())
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    //TODO togliere Contains("_")
+    bool isPlayerTurn()
+    {
+        return CharacterInTheTurn && !CharacterInTheTurn.gameObject.name.Contains("_");
     }
 
     List<GameObject> Randomize(List<GameObject> list)
