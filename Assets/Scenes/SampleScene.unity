@@ -418,6 +418,7 @@ GameObject:
   - component: {fileID: 115583209}
   - component: {fileID: 115583208}
   - component: {fileID: 115583207}
+  - component: {fileID: 115583211}
   m_Layer: 0
   m_Name: Enemy_1
   m_TagString: Character
@@ -458,7 +459,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1f8665bf643d1a74d8037895da1c5b32, type: 2}
+  - {fileID: 2100000, guid: 0c4e132a6178d074192f3a7561c6672a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -502,6 +503,25 @@ Transform:
   m_Father: {fileID: 1518545870}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &115583211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115583206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fd0da0a2a15b4942a778d3e7c43764d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 50
+  MaxMana: 20
+  Health: 50
+  Mana: 0
+  PhisicalDefenseValue: 0
+  PhisicalAttackValue: 0
+  OtherCharacter: {fileID: 0}
 --- !u!1 &117591724
 GameObject:
   m_ObjectHideFlags: 0
@@ -2168,6 +2188,7 @@ GameObject:
   - component: {fileID: 1689446389}
   - component: {fileID: 1689446388}
   - component: {fileID: 1689446387}
+  - component: {fileID: 1689446391}
   m_Layer: 0
   m_Name: Enemy_2
   m_TagString: Character
@@ -2252,6 +2273,25 @@ Transform:
   m_Father: {fileID: 1518545870}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1689446391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1689446386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fd0da0a2a15b4942a778d3e7c43764d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 0
+  MaxMana: 0
+  Health: 0
+  Mana: 0
+  PhisicalDefenseValue: 0
+  PhisicalAttackValue: 0
+  OtherCharacter: {fileID: 0}
 --- !u!1 &1757538935
 GameObject:
   m_ObjectHideFlags: 0

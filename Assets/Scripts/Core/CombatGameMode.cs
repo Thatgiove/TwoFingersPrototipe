@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts;
+using Assets.Scripts.Character;
+using Assets.Scripts.Delegates;
+using Assets.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+
 
 public class CombatGameMode : MonoBehaviour
 {
@@ -21,6 +25,7 @@ public class CombatGameMode : MonoBehaviour
     void Start()
     {
         CreateTurn();
+        EventManager<OnCharacterSelection>.Register(CharacterSelected);
     }
 
     void Update()
@@ -80,7 +85,7 @@ public class CombatGameMode : MonoBehaviour
         if (Characters == null)
             Characters = GameObject.FindGameObjectsWithTag("Character");
 
-        var randomizedList = Randomize(Characters.ToList());
+        var randomizedList = Utils.Randomize(Characters.ToList());
 
         foreach (GameObject character in randomizedList)
         {
@@ -150,23 +155,13 @@ public class CombatGameMode : MonoBehaviour
         }
     }
 
-    //TODO togliere Contains("_")
     bool isPlayerTurn()
     {
-        return CharacterInTheTurn && !CharacterInTheTurn.gameObject.name.Contains("_");
+        return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn);
     }
-
-    List<GameObject> Randomize(List<GameObject> list)
+    void CharacterSelected(GameObject g)
     {
-        List<GameObject> randomizedList = new List<GameObject>();
-        System.Random rnd = new System.Random();
-
-        while (list.Count > 0)
-        {
-            int index = rnd.Next(0, list.Count);
-            randomizedList.Add(list[index]);
-            list.RemoveAt(index);
-        }
-        return randomizedList;
+        Debug.Log(g.name + " " + "Selected");
     }
+
 }
