@@ -14,9 +14,13 @@ public class CombatGameMode : MonoBehaviour
     [SerializeField] Timer _Timer;
     MainCanvas canvas;
     GameObject[] Characters;
+    public GameObject CharacterSelected;
+
     //TODO togliere public
     //Il personaggio nel campo di battaglia attualmente in turno
     public GameObject CharacterInTheTurn;
+    Character _CharacterInTheTurn;
+
     Text _enemyTurnText;
     //TODO unificare le code
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
@@ -25,7 +29,7 @@ public class CombatGameMode : MonoBehaviour
     void Start()
     {
         CreateTurn();
-        EventManager<OnCharacterSelection>.Register(CharacterSelected);
+        EventManager<OnCharacterSelection>.Register(SelectCharacter);
     }
 
     void Update()
@@ -159,9 +163,24 @@ public class CombatGameMode : MonoBehaviour
     {
         return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn);
     }
-    void CharacterSelected(GameObject g)
+    void SelectCharacter(GameObject charSelected)
     {
-        Debug.Log(g.name + " " + "Selected");
+        _CharacterInTheTurn = CharacterInTheTurn.GetComponent<Character>();
+        if (_CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
+        {
+            CharacterSelected = charSelected;
+            var _charSelected = CharacterSelected.GetComponent<Character>(); //TODO ??????????????
+            _charSelected.TakeDamage(_CharacterInTheTurn.CalculateDamage());
+            //print("attack");
+        }
+    }
+    //Chiamato dal pulsante in Character Panel
+    public void ChangeCombatMode(int combatMode)
+    {
+        if(_CharacterInTheTurn != null)
+        {
+            _CharacterInTheTurn.combatMode = (CombatMode)combatMode;
+        }
     }
 
 }
