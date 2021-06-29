@@ -16,10 +16,10 @@ public class CombatGameMode : MonoBehaviour
     GameObject[] Characters;
     public GameObject CharacterSelected;
 
-    //TODO togliere public
     //Il personaggio nel campo di battaglia attualmente in turno
-    public GameObject CharacterInTheTurn;
-    Character _CharacterInTheTurn;
+    Character CharacterInTheTurn;
+
+    //Character _CharacterInTheTurn;
 
     Text _enemyTurnText;
     //TODO unificare le code
@@ -51,7 +51,7 @@ public class CombatGameMode : MonoBehaviour
             if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
-                CharacterInTheTurn = CharacterQueue.Peek();
+                CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
                 HandleInput();
             }
             else
@@ -64,7 +64,7 @@ public class CombatGameMode : MonoBehaviour
 
     void PutIconAtFirstElementOfQueue()
     {
-        CharacterInTheTurn = CharacterQueue.Peek();
+        CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>(); ;
         HandleInput();
 
         GameObject _TurnIcon = new GameObject("_TurnIcon");
@@ -161,25 +161,29 @@ public class CombatGameMode : MonoBehaviour
 
     bool isPlayerTurn()
     {
-        return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn);
+        return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn.gameObject);
     }
     void SelectCharacter(GameObject charSelected)
     {
-        _CharacterInTheTurn = CharacterInTheTurn.GetComponent<Character>();
-        if (_CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
-        {
-            CharacterSelected = charSelected;
-            var _charSelected = CharacterSelected.GetComponent<Character>(); //TODO ??????????????
-            _charSelected.TakeDamage(_CharacterInTheTurn.CalculateDamage());
-            //print("attack");
+        //Il CharacterSelected può essere anche un alleato 
+
+        CharacterSelected = charSelected;
+        //TODO il combat va tolto da qua
+        if (CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
+        {  
+            if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
+            {
+                var _charSelected = CharacterSelected.GetComponent<Enemy>(); //TODO ??????????????
+                _charSelected.CalculateDamage();
+            }
         }
     }
     //Chiamato dal pulsante in Character Panel
     public void ChangeCombatMode(int combatMode)
     {
-        if(_CharacterInTheTurn != null)
+        if(CharacterInTheTurn != null)
         {
-            _CharacterInTheTurn.combatMode = (CombatMode)combatMode;
+            CharacterInTheTurn.combatMode = (CombatMode)combatMode;
         }
     }
 

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Assets.Scripts.Weapon;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Character
 {
@@ -15,8 +17,12 @@ namespace Assets.Scripts.Character
     {
 
         [SerializeField] float MaxHealth;
+        [SerializeField] float MinHealth;
         [SerializeField] float MaxMana;
         [SerializeField] float _Health;
+        [SerializeField] Image FillBar;
+        CharacterWeapon _Weapon;
+
         public float Health
         {
             get { return _Health; }
@@ -29,10 +35,14 @@ namespace Assets.Scripts.Character
         [SerializeField] Character OtherCharacter;
         public bool _isDead;
         public CombatMode combatMode;
+
         // Start is called before the first frame update
         void Start()
         {
-           
+            combatMode = CombatMode.ShootingMode;
+
+            _Weapon = new CharacterWeapon();
+            _Weapon.Damage = 0.2f;
         }
 
         // Update is called once per frame
@@ -42,23 +52,35 @@ namespace Assets.Scripts.Character
                 print("Destroy()");
         }
 
-        void Attack() { }
-        void UseAbility() { }
-        public void TakeDamage(float amount) 
+        void Attack()
         {
-            _Health -= amount;
         }
-        public float CalculateDamage()
+        void UseAbility() { }
+        public void TakeDamage(float amount)
         {
-            return 0.2f;
+            if (_Health <= 0) return;
+
+            if (FillBar)
+                FillBar.fillAmount -= NormalizedDamage(_Weapon.Damage);
+            
+                _Health -= amount;
+        }
+        public void CalculateDamage()
+        {
+            TakeDamage(_Weapon.Damage);
         }
 
         //In base alla % di difesa del personaggio 
         //determina se posso colpire
         bool CanHit()
         {
-
             return false;
+        }
+
+        //Il danno convertito nel range 0 - 1
+        float NormalizedDamage(float realDamage)
+        {
+            return (realDamage - MinHealth) / (MaxHealth - MinHealth);
         }
     }
 }
