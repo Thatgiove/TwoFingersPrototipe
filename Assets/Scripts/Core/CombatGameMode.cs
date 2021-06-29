@@ -14,6 +14,7 @@ public class CombatGameMode : MonoBehaviour
     [SerializeField] Timer _Timer;
     MainCanvas canvas;
     GameObject[] Characters;
+    GameObject PlayerCanvas;
     public GameObject CharacterSelected;
 
     //Il personaggio nel campo di battaglia attualmente in turno
@@ -30,28 +31,36 @@ public class CombatGameMode : MonoBehaviour
     {
         CreateTurn();
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
+
+        //TODO - non prendere by string
+        PlayerCanvas = GameObject.Find("PlayerPanel");
+        PlayerCanvas.SetActive(false);
     }
 
     void Update()
     {
         ///////////////TODO TMP///////////////////////
         if (Input.GetKeyDown("space") && !isPlayerTurn())
-                 _Timer.Time_Zero();
+            _Timer.Time_Zero();
         ////////////////////////////////////////////
 
         if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
         {
             CharacterInTheTurn = null;
             //distrugge il flag della turnazione precedente
-            Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject); 
-            
+            Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject);
+
             TurnQueue.Dequeue();
             CharacterQueue.Dequeue();
-          
+
             if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
                 CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+                
+                if (PlayerCanvas)
+                    AttachPlayerCanvas();
+
                 HandleInput();
             }
             else
@@ -62,9 +71,30 @@ public class CombatGameMode : MonoBehaviour
         }
     }
 
+    //attacca la schermata di comandi a quel player
+    void AttachPlayerCanvas()
+    {
+        if (isPlayerTurn())
+        {
+            PlayerCanvas.SetActive(true);
+            PlayerCanvas.transform.parent = CharacterInTheTurn.gameObject.transform;
+            PlayerCanvas.transform.position = CharacterInTheTurn.transform.position;
+
+            Vector3 playerCanvasPos = new Vector3(1, 0, -1);
+            PlayerCanvas.transform.position += playerCanvasPos;
+        }
+        else
+            PlayerCanvas.SetActive(false);
+
+
+    }
     void PutIconAtFirstElementOfQueue()
     {
-        CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>(); ;
+        CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+        
+        if (PlayerCanvas)
+            AttachPlayerCanvas();
+       
         HandleInput();
 
         GameObject _TurnIcon = new GameObject("_TurnIcon");
@@ -83,7 +113,7 @@ public class CombatGameMode : MonoBehaviour
         float imgOffset = -300f;
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = GameObject.FindObjectOfType<MainCanvas>();
-        _enemyTurnText =  canvas.transform.Find("EnemyTurnText").GetComponent<Text>(); //TODO non prendere by name
+        _enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>(); //TODO non prendere by name
         _enemyTurnText.enabled = false;
 
         if (Characters == null)
@@ -126,7 +156,7 @@ public class CombatGameMode : MonoBehaviour
                 //Mette i personaggi nella coda
                 TurnQueue.Enqueue(imgObject);
                 //TODO : creare una sola coda
-                CharacterQueue.Enqueue(character); 
+                CharacterQueue.Enqueue(character);
             }
         }
         PutIconAtFirstElementOfQueue();
@@ -134,7 +164,7 @@ public class CombatGameMode : MonoBehaviour
 
     void DestroyTurn()
     {
-        var charactersInGame= GameObject.FindObjectsOfType<CharacterIcon>();
+        var charactersInGame = GameObject.FindObjectsOfType<CharacterIcon>();
 
         foreach (var ele in charactersInGame)
         {
@@ -170,7 +200,7 @@ public class CombatGameMode : MonoBehaviour
         CharacterSelected = charSelected;
         //TODO il combat va tolto da qua
         if (CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
-        {  
+        {
             if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
             {
                 var _charSelected = CharacterSelected.GetComponent<Enemy>(); //TODO ??????????????
@@ -181,7 +211,7 @@ public class CombatGameMode : MonoBehaviour
     //Chiamato dal pulsante in Character Panel
     public void ChangeCombatMode(int combatMode)
     {
-        if(CharacterInTheTurn != null)
+        if (CharacterInTheTurn != null)
         {
             CharacterInTheTurn.combatMode = (CombatMode)combatMode;
         }
