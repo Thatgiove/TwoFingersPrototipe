@@ -22,7 +22,7 @@ namespace Assets.Scripts.Character
         [SerializeField] float _Health;
         [SerializeField] Image FillBar;
         CharacterWeapon _Weapon;
-
+        public bool HasAttacked;
         public float Health
         {
             get { return _Health; }
@@ -52,8 +52,9 @@ namespace Assets.Scripts.Character
                 print("Destroy()");
         }
 
-        void Attack()
+        public void Attack()
         {
+            print("Attack()");
         }
         void UseAbility() { }
         public void TakeDamage(float amount)
