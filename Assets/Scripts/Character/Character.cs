@@ -9,8 +9,7 @@ namespace Assets.Scripts.Character
     public enum CombatMode
     {
         ShootingMode = 1,
-        DefenseMode = 2,
-        MagicMode = 3
+        DefenseMode = 2
     }
 
     public class Character : MonoBehaviour

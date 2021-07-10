@@ -22,7 +22,7 @@ public class ButtonManager : MonoBehaviour
 
     void AttackButtonClick()
     {
-        Debug.Log("AttackButtonClick!");
+       // Debug.Log("AttackButtonClick!");
     }
     void SelectWeaponButtonClick()
     {

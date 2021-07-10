@@ -14,6 +14,7 @@ public class CombatGameMode : MonoBehaviour
     MainCanvas canvas;
     GameObject[] Characters;
     GameObject PlayerCanvas;
+
     public GameObject CharacterSelected;
     Enemy _Enemy; 
     //Il personaggio nel campo di battaglia attualmente in turno
@@ -29,10 +30,9 @@ public class CombatGameMode : MonoBehaviour
         //TODO - non prendere by string
         PlayerCanvas = GameObject.Find("PlayerPanel");
         PlayerCanvas.SetActive(false);
+
         CreateTurn();
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
-
-       
     }
 
     void Update()
@@ -71,9 +71,26 @@ public class CombatGameMode : MonoBehaviour
     //attacca la schermata di comandi a quel player
     void AttachPlayerCanvas()
     {
+        //riattiva i characters stats di tutti i personaggi
+        //TODO rifare
+        //TODO il get character può tornare utile in altre occasioni
+        foreach (var obj in FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)))
+        {
+            var cStats = obj.transform.GetChild(0).gameObject;
+            cStats.SetActive(true);
+
+            //controlla se il character è in defense mode
+            //in tal caso attiva il Text
+            Transform current = cStats.transform.GetChild(0);
+            current = current.GetChild(0);
+            current.gameObject.SetActive(obj.combatMode == CombatMode.DefenseMode);
+        }
+
         if (isPlayerTurn())
         {
             PlayerCanvas.SetActive(true);
+            CharacterInTheTurn.transform.GetChild(0).gameObject.SetActive(false);
+
             PlayerCanvas.transform.parent = CharacterInTheTurn.gameObject.transform;
             PlayerCanvas.transform.position = CharacterInTheTurn.transform.position;
 
