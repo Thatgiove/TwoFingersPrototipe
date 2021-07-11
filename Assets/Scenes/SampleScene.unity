@@ -393,11 +393,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd0da0a2a15b4942a778d3e7c43764d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 50
   MinHealth: 0
+  MaxHealth: 56
   MaxMana: 20
   _Health: 50
   FillBar: {fileID: 1852133186}
+  CharacterStatsCanvas: {fileID: 1250669689}
   HasAttacked: 0
   Mana: 0
   PhisicalDefenseValue: 0
@@ -794,6 +795,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6423820114969011317, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
   m_PrefabInstance: {fileID: 727077409}
   m_PrefabAsset: {fileID: 0}
+--- !u!223 &379168938 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4307754560527787187, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 1478717923}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &460264519 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7049454615489561512, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
@@ -818,6 +824,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterStats
       objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: TESTTTTT
+      value: 
+      objectReference: {fileID: 1207401669}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: MaxHealth
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: _MaxHealth
+      value: 442
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: CharacterStatsCanvas
+      value: 
+      objectReference: {fileID: 379168938}
     - target: {fileID: 4993878881702005121, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -884,6 +906,17 @@ PrefabInstance:
       objectReference: {fileID: 963194227}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+--- !u!114 &519499529 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 617065922}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &528475578
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,6 +983,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!223 &574575333 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4307754560527787187, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 1771295776}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &603443068 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 1116562323}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &616887431
 GameObject:
   m_ObjectHideFlags: 0
@@ -1038,6 +1087,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 905174583}
     m_Modifications:
+    - target: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+      propertyPath: m_Text
+      value: '-'
+      objectReference: {fileID: 0}
     - target: {fileID: 7049454615489561512, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -1558,6 +1611,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 769984854}
     m_Modifications:
+    - target: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+      propertyPath: m_Text
+      value: '-'
+      objectReference: {fileID: 0}
     - target: {fileID: 7049454615489561512, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -1624,6 +1681,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+--- !u!223 &1141202778 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4307754560527787187, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 617065922}
+  m_PrefabAsset: {fileID: 0}
+--- !u!223 &1193690592 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4307754560527787187, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 1116562323}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1207401669 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 1478717923}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1216336073
 GameObject:
   m_ObjectHideFlags: 0
@@ -1669,6 +1747,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!223 &1250669689 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 4307754560527787187, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  m_PrefabInstance: {fileID: 95626460}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1274318964
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1688,6 +1771,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterStats
       objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: TESTTTTT
+      value: 
+      objectReference: {fileID: 519499529}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: MaxHealth
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: _MaxHealth
+      value: 23
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: CharacterStatsCanvas
+      value: 
+      objectReference: {fileID: 1141202778}
     - target: {fileID: 4993878881702005121, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -2011,6 +2110,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 944171018}
     m_Modifications:
+    - target: {fileID: 5617959305430213097, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+      propertyPath: m_Text
+      value: '-'
+      objectReference: {fileID: 0}
     - target: {fileID: 7049454615489561512, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -2187,11 +2290,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd0da0a2a15b4942a778d3e7c43764d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 50
   MinHealth: 0
+  MaxHealth: 56
   MaxMana: 0
   _Health: 50
   FillBar: {fileID: 934584420}
+  CharacterStatsCanvas: {fileID: 574575333}
   HasAttacked: 0
   Mana: 0
   PhisicalDefenseValue: 0
@@ -2761,6 +2865,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterStats
       objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: TESTTTTT
+      value: 
+      objectReference: {fileID: 603443068}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: MaxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: _MaxHealth
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993878881702005120, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
+      propertyPath: CharacterStatsCanvas
+      value: 
+      objectReference: {fileID: 1193690592}
     - target: {fileID: 4993878881702005121, guid: 7676f199ea50fa84fb5dc7bf24efcf12, type: 3}
       propertyPath: m_RootOrder
       value: 0

@@ -101,6 +101,8 @@ MonoBehaviour:
   MaxMana: 0
   _Health: 0
   FillBar: {fileID: 0}
+  CharacterStats: {fileID: 7373809187103457053, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
+  HasAttacked: 0
   Mana: 0
   PhisicalDefenseValue: 0
   PhisicalAttackValue: 0

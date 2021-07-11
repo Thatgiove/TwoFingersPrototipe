@@ -14,12 +14,15 @@ namespace Assets.Scripts.Character
 
     public class Character : MonoBehaviour
     {
-
-        [SerializeField] float MaxHealth;
+   
         [SerializeField] float MinHealth;
+        [SerializeField] float MaxHealth;
         [SerializeField] float MaxMana;
         [SerializeField] float _Health;
-        [SerializeField] Image FillBar;
+        
+        [SerializeField] Image FillBar; //TODO -- togliere
+        [SerializeField] Canvas CharacterStatsCanvas; //TODO --- lo prendiamo da qua?
+
         CharacterWeapon _Weapon;
         public bool HasAttacked;
         public float Health
@@ -42,9 +45,13 @@ namespace Assets.Scripts.Character
 
             _Weapon = new CharacterWeapon();
             _Weapon.Damage = 0.2f;
+
+            if(CharacterStatsCanvas) //TODO --- MMMM
+               CharacterStatsCanvas.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
         }
 
         // Update is called once per frame
+
         void Update()
         {
             if (_isDead)
