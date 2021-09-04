@@ -16,7 +16,7 @@ public class CombatGameMode : MonoBehaviour
     GameObject PlayerCanvas;
 
     public GameObject CharacterSelected;
-    Enemy _Enemy; 
+    Enemy enemy; 
     //Il personaggio nel campo di battaglia attualmente in turno
     Character CharacterInTheTurn;
     Text _enemyTurnText;
@@ -24,7 +24,6 @@ public class CombatGameMode : MonoBehaviour
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
     float TimeToAttack; //TODO RIMUOVERE -- stai dando il peggio di te
-    bool HasAttacked; //TODO TOGLIERE DA QUA
     void Start()
     { 
         //TODO - non prendere by string
@@ -199,8 +198,8 @@ public class CombatGameMode : MonoBehaviour
 
         if (!isPlayerTurn())
         {
-            _Enemy = CharacterInTheTurn.GetComponent<Enemy>();
-            TimeToAttack = _Enemy.CalculateAttackTime(_Timer.totalTurnTime);
+            enemy = CharacterInTheTurn.GetComponent<Enemy>();
+            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime);
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -221,8 +220,16 @@ public class CombatGameMode : MonoBehaviour
     {
         if (_Timer.timeRemaining <= TimeToAttack)
         {
-            _Enemy.Attack();
-            _Timer.Time_Zero(); //TODO -- puoi fare di meglio
+            var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
+            if (enemy.weapon)
+            {
+                var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
+                playersList[0].TakeDamage(weaponDamage);
+                //TODO per il momento seleziona casualmente il player
+                //costruire un comportamento per cui la personalità del nemico 
+                //selezioni il giocatore da attaccare
+            }
+            EndTurn();
         }
            
     }
@@ -237,8 +244,13 @@ public class CombatGameMode : MonoBehaviour
         {
             if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
             {
-                var _charSelected = CharacterSelected.GetComponent<Enemy>(); //TODO ??????????????
-                _charSelected.CalculateDamage();
+                var enemy = CharacterSelected.GetComponent<Enemy>();
+                if (CharacterInTheTurn.weapon)
+                {
+                    var weaponDamage = CharacterInTheTurn.weapon.GetComponent<Weapon>().damage;
+                    enemy.TakeDamage(weaponDamage);
+                }
+                
             }
         }
     }
@@ -249,6 +261,12 @@ public class CombatGameMode : MonoBehaviour
         {
             CharacterInTheTurn.combatMode = (CombatMode)combatMode;
         }
+        if (combatMode == (int)CombatMode.DefenseMode)
+            EndTurn();
     }
 
+    void EndTurn()
+    {
+        _Timer.Time_Zero();
+    }
 }

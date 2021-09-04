@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Assets.Scripts.Weapon;
 using UnityEngine.UI;
 
 namespace Assets.Scripts.Character
@@ -22,8 +21,9 @@ namespace Assets.Scripts.Character
         
         [SerializeField] Image FillBar; //TODO -- togliere
         [SerializeField] Canvas CharacterStatsCanvas; //TODO --- lo prendiamo da qua?
+        public GameObject weapon; 
 
-        CharacterWeapon _Weapon;
+        
         public bool HasAttacked;
         public float Health
         {
@@ -43,11 +43,12 @@ namespace Assets.Scripts.Character
         {
             combatMode = CombatMode.ShootingMode;
 
-            _Weapon = new CharacterWeapon();
-            _Weapon.Damage = 0.2f;
-
-            if(CharacterStatsCanvas) //TODO --- MMMM
-               CharacterStatsCanvas.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
+            if (CharacterStatsCanvas) {
+                //TODO --- MMMM
+                CharacterStatsCanvas.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
+                _Health = MaxHealth;
+            }
+                
         }
 
         // Update is called once per frame
@@ -56,26 +57,27 @@ namespace Assets.Scripts.Character
         {
             if (_isDead)
                 print("Destroy()");
+           
+            //TODO --- MMMM
+            CharacterStatsCanvas.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
         }
 
-        public void Attack()
-        {
-            print("Attack()");
-        }
         void UseAbility() { }
+
         public void TakeDamage(float amount)
         {
+            print(amount);
             if (_Health <= 0) return;
 
             if (FillBar)
-                FillBar.fillAmount -= NormalizedDamage(_Weapon.Damage);
-            
-                _Health -= amount;
+            {
+                FillBar.fillAmount -= NormalizedDamage(amount);
+            }
+             
+
+            _Health -= amount;
         }
-        public void CalculateDamage()
-        {
-            TakeDamage(_Weapon.Damage);
-        }
+        
 
         //In base alla % di difesa del personaggio 
         //determina se posso colpire
