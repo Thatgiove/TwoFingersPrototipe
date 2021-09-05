@@ -66,15 +66,13 @@ namespace Assets.Scripts.Character
 
         public void TakeDamage(float amount)
         {
-            print(amount);
+            //print(amount);
             if (_Health <= 0) return;
 
             if (FillBar)
             {
                 FillBar.fillAmount -= NormalizedDamage(amount);
             }
-             
-
             _Health -= amount;
         }
         

@@ -23,7 +23,7 @@ public class CombatGameMode : MonoBehaviour
     //TODO unificare le code
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
-    float TimeToAttack; //TODO RIMUOVERE -- stai dando il peggio di te
+    float TimeToAttack = 0f; //TODO RIMUOVERE -- stai dando il peggio di te
     void Start()
     { 
         //TODO - non prendere by string
@@ -39,6 +39,7 @@ public class CombatGameMode : MonoBehaviour
         if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
         {
             CharacterInTheTurn = null;
+            
             //distrugge il flag della turnazione precedente
             Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject);
 
@@ -192,15 +193,22 @@ public class CombatGameMode : MonoBehaviour
     //TODO - Cambiare nome tipo handle turn
     void HandleInput()
     {
-       
+        //TODO - rimuovere
         if (_enemyTurnText)
             _enemyTurnText.enabled = !isPlayerTurn();
 
-        if (!isPlayerTurn())
+        if (!isPlayerTurn() && TimeToAttack == 0)
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
-            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime);
+            //TODO creare un sistema di calcolo dell'attacco nemico
+            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime) + _Timer.totalTurnTime/2;
 
+            if(TimeToAttack >= _Timer.totalTurnTime)
+            {
+                TimeToAttack = _Timer.totalTurnTime;
+                TimeToAttack -= 3;
+            }
+            //print(TimeToAttack);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -220,11 +228,14 @@ public class CombatGameMode : MonoBehaviour
     {
         if (_Timer.timeRemaining <= TimeToAttack)
         {
+            TimeToAttack = 0;
             var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
             if (enemy.weapon)
             {
                 var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
-                playersList[0].TakeDamage(weaponDamage);
+                var tmp = playersList[Random.Range(0, playersList.Count)];
+                tmp.TakeDamage(weaponDamage);
+                print(tmp.gameObject.name);
                 //TODO per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
                 //selezioni il giocatore da attaccare
