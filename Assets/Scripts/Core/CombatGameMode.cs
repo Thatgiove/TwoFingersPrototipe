@@ -255,6 +255,7 @@ public class CombatGameMode : MonoBehaviour
     }
     void ToggleMouseLook()
     {
+
         foreach (var character in FindObjectsOfType<Character>())
         {
             if (character.GetComponent<MouseLook>())
