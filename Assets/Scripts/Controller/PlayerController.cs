@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     MouseLook mouseLook;
      void Awake()
     {
-        mouseLook = gameObject.GetComponent<MouseLook>();
+        //mouseLook = gameObject.GetComponent<MouseLook>();
     }
     void Start()
     {
@@ -30,18 +30,18 @@ public class PlayerController : MonoBehaviour
 
         }
         //qui si entra nella modalità mira
-        if (Input.GetKey(KeyCode.Mouse1))
-        {
-            if (gameObject.GetComponent<MouseLook>())
-            {
-               // print(gameObject.name);
-                gameObject.GetComponent<MouseLook>().enabled = true;
-            }
-        }
-        else
-        {
-            gameObject.GetComponent<MouseLook>().enabled = false;
-        }
+        //if (Input.GetKey(KeyCode.Mouse1))
+        //{
+        //    if (gameObject.GetComponent<MouseLook>())
+        //    {
+        //       // print(gameObject.name);
+        //        gameObject.GetComponent<MouseLook>().enabled = true;
+        //    }
+        //}
+        //else
+        //{
+        //    gameObject.GetComponent<MouseLook>().enabled = false;
+        //}
        
     }
 }

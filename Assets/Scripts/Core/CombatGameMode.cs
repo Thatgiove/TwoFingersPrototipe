@@ -7,16 +7,25 @@ using Assets.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
-
+/************************
+ * CombatGameMode gestisce la turnazione
+ * durante la fase di combattimento
+ */
 public class CombatGameMode : MonoBehaviour
 {
     [SerializeField] Timer _Timer;
+
     MainCanvas canvas;
     GameObject[] Characters;
-    GameObject PlayerCanvas;
+
+    //l'interfaccia di comando del Player 
+    GameObject PlayerPanel;
+
+    //l'interfaccia riassuntiva (salute - mana) 
+    GameObject LifePanel;
 
     public GameObject CharacterSelected;
-    Enemy enemy; 
+    Enemy enemy;
     //Il personaggio nel campo di battaglia attualmente in turno
     Character CharacterInTheTurn;
     Text _enemyTurnText;
@@ -24,11 +33,16 @@ public class CombatGameMode : MonoBehaviour
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
     float TimeToAttack = 0f; //TODO RIMUOVERE -- stai dando il peggio di te
+
     void Start()
-    { 
-        //TODO - non prendere by string
-        PlayerCanvas = GameObject.Find("PlayerPanel");
-        PlayerCanvas.SetActive(false);
+    {
+        //TODO - get by string?
+        PlayerPanel = GameObject.Find("PlayerPanel");
+
+        if (PlayerPanel != null)
+        {
+            PlayerPanel.SetActive(false);
+        }
 
         CreateTurn();
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
@@ -39,7 +53,7 @@ public class CombatGameMode : MonoBehaviour
         if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
         {
             CharacterInTheTurn = null;
-            
+
             //distrugge il flag della turnazione precedente
             Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject);
 
@@ -49,12 +63,14 @@ public class CombatGameMode : MonoBehaviour
             if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
-                CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
-                 
-                //TODO - check player turn
-                if (PlayerCanvas)
-                    AttachPlayerCanvas();
+               
+                //CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
 
+                //TODO - check player turn
+                if (PlayerPanel)
+                {
+                    AttachPlayerCanvas();
+                }
                 HandleInput();
             }
             else
@@ -65,54 +81,69 @@ public class CombatGameMode : MonoBehaviour
         }
         ///////TODO -----------mmm non mi convince per niente
         if (!isPlayerTurn())
+        {
             EnemyAttackPlayer();
+        }
+        
     }
 
     //attacca la schermata di comandi a quel player
     void AttachPlayerCanvas()
     {
-        //riattiva i characters stats di tutti i personaggi
+        //riattiva i life panel di tutti i personaggi
         //TODO rifare
         //TODO il get character può tornare utile in altre occasioni
         foreach (var obj in FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)))
         {
-            var cStats = obj.transform.GetChild(0).gameObject;
-            cStats.SetActive(true);
-
+            LifePanel = obj.transform.Find("LifePanel").gameObject;
+            if (LifePanel)
+            {
+                LifePanel.SetActive(true);
+            }
+            
             //controlla se il character è in defense mode
             //in tal caso attiva il Text
-            Transform current = cStats.transform.GetChild(0);
+            Transform current = LifePanel.transform.GetChild(0);
             current = current.GetChild(0);
             current.gameObject.SetActive(obj.combatMode == CombatMode.DefenseMode);
         }
 
         if (isPlayerTurn())
         {
-            PlayerCanvas.SetActive(true);
-            CharacterInTheTurn.transform.GetChild(0).gameObject.SetActive(false);
+            var lifePanel = CharacterInTheTurn.transform.Find("LifePanel");
+            if (lifePanel)
+            {
+                lifePanel.gameObject.SetActive(false);
+            }
 
-            PlayerCanvas.transform.parent = CharacterInTheTurn.gameObject.transform;
-            PlayerCanvas.transform.position = CharacterInTheTurn.transform.position;
-
+            PlayerPanel.SetActive(true);
+            PlayerPanel.transform.parent = CharacterInTheTurn.gameObject.transform;
+            PlayerPanel.transform.position = CharacterInTheTurn.transform.position;
             Vector3 playerCanvasPos = new Vector3(1.5f, 0, 0);
-            
+
             //TODO -- rotazione del canvas in direzione della camera
             //la camera si può muovere
-            PlayerCanvas.transform.rotation = transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-            PlayerCanvas.transform.position += playerCanvasPos;
+            PlayerPanel.transform.rotation = transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            PlayerPanel.transform.position += playerCanvasPos;
         }
         else
-            PlayerCanvas.SetActive(false);
-
+        {
+            PlayerPanel.SetActive(false);
+        }
     }
 
+    
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+        //print(CharacterInTheTurn.gameObject.name);
         //TODO Gestire diversamente
-        if (PlayerCanvas)
+
+        if (PlayerPanel)
+        {
             AttachPlayerCanvas();
-       
+        }
+
         HandleInput();
 
         GameObject _TurnIcon = new GameObject("_TurnIcon");
@@ -131,11 +162,13 @@ public class CombatGameMode : MonoBehaviour
         float imgOffset = -450f;
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = GameObject.FindObjectOfType<MainCanvas>();
-        _enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>(); //TODO non prendere by name
+        _enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>();
         _enemyTurnText.enabled = false;
 
         if (Characters == null)
+        {
             Characters = GameObject.FindGameObjectsWithTag("Character");
+        }
 
         var randomizedList = Utils.Randomize(Characters.ToList());
 
@@ -179,7 +212,7 @@ public class CombatGameMode : MonoBehaviour
         }
         PutIconAtFirstElementOfQueue();
     }
-     
+
     void DestroyTurn()
     {
         var charactersInGame = GameObject.FindObjectsOfType<CharacterIcon>();
@@ -201,9 +234,9 @@ public class CombatGameMode : MonoBehaviour
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
             //TODO creare un sistema di calcolo dell'attacco nemico
-            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime) + _Timer.totalTurnTime/2;
+            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime) + _Timer.totalTurnTime / 2;
 
-            if(TimeToAttack >= _Timer.totalTurnTime)
+            if (TimeToAttack >= _Timer.totalTurnTime)
             {
                 TimeToAttack = _Timer.totalTurnTime;
                 TimeToAttack -= 3;
@@ -214,8 +247,26 @@ public class CombatGameMode : MonoBehaviour
         }
         else
         {
+            //ToggleMouseLook();
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+        ToggleMouseLook();
+    }
+    void ToggleMouseLook()
+    {
+        foreach (var character in FindObjectsOfType<Character>())
+        {
+            if (character.GetComponent<MouseLook>())
+            {
+                character.gameObject.GetComponent<MouseLook>().enabled = false;
+            }
+        }
+        //TODO - si può togliere ?
+        if (isPlayerTurn())
+        {
+            CharacterInTheTurn.gameObject.GetComponent<MouseLook>().enabled = true;
+            print(CharacterInTheTurn.gameObject.name);
         }
     }
 
@@ -235,14 +286,14 @@ public class CombatGameMode : MonoBehaviour
                 var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
                 var tmp = playersList[Random.Range(0, playersList.Count)];
                 tmp.TakeDamage(weaponDamage);
-                print(tmp.gameObject.name);
+                //print(tmp.gameObject.name);
                 //TODO per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
                 //selezioni il giocatore da attaccare
             }
             EndTurn();
         }
-           
+
     }
 
     void SelectCharacter(GameObject charSelected)
@@ -261,7 +312,7 @@ public class CombatGameMode : MonoBehaviour
                     var weaponDamage = CharacterInTheTurn.weapon.GetComponent<Weapon>().damage;
                     enemy.TakeDamage(weaponDamage);
                 }
-                
+
             }
         }
     }

@@ -56,10 +56,15 @@ namespace Assets.Scripts.Character
         void Update()
         {
             if (_isDead)
+            {
                 print("Destroy()");
+            }
+            //TODO -?
+            if (CharacterStatsCanvas)
+            {
+                CharacterStatsCanvas.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
+            }
            
-            //TODO --- MMMM
-            CharacterStatsCanvas.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
         }
 
         void UseAbility() { }
