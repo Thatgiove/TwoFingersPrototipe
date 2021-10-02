@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    MouseLook mouseLook;
-     void Awake()
+    public bool enableRotation;
+    Ray ray;
+    RaycastHit hit;
+    Transform enemy;
+
+    void Awake()
     {
-        //mouseLook = gameObject.GetComponent<MouseLook>();
     }
     void Start()
     {
@@ -16,32 +19,27 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-       
 
-        if (Input.GetMouseButtonDown(0))
+        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out hit))
         {
-            RaycastHit hitInfo = new RaycastHit();
-            bool hit = Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo);
-            
-            if (hit && Utils.HasComponent<Enemy>(hitInfo.transform.gameObject))
+            //se il cursore passa sul nemico effettuo una rotazione sulla
+            //sua position
+            if (Input.GetMouseButtonDown(0) && Utils.HasComponent<Enemy>(hit.transform.gameObject))
             {
-                EventManager<OnCharacterSelection>.Trigger?.Invoke(hitInfo.transform.gameObject); 
+                enemy = hit.transform;
+                EventManager<OnCharacterSelection>.Trigger?.Invoke(hit.transform.gameObject);
+                RotateToEnemy();
             }
-
         }
-        //qui si entra nella modalità mira
-        //if (Input.GetKey(KeyCode.Mouse1))
-        //{
-        //    if (gameObject.GetComponent<MouseLook>())
-        //    {
-        //       // print(gameObject.name);
-        //        gameObject.GetComponent<MouseLook>().enabled = true;
-        //    }
-        //}
-        //else
-        //{
-        //    gameObject.GetComponent<MouseLook>().enabled = false;
-        //}
-       
+    }
+
+    void RotateToEnemy()
+    {
+        Vector3 lookVector = enemy.position - gameObject.transform.position;
+        lookVector.y = gameObject.transform.position.y;
+        Quaternion rot = Quaternion.LookRotation(lookVector);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rot, 1);
     }
 }

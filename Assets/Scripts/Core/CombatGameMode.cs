@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public class CombatGameMode : MonoBehaviour
 {
     [SerializeField] Timer _Timer;
+    [SerializeField] Transform centerOfField;
 
     MainCanvas canvas;
     GameObject[] Characters;
@@ -38,7 +39,7 @@ public class CombatGameMode : MonoBehaviour
     {
         //TODO - get by string?
         PlayerPanel = GameObject.Find("PlayerPanel");
-
+       
         if (PlayerPanel != null)
         {
             PlayerPanel.SetActive(false);
@@ -119,12 +120,21 @@ public class CombatGameMode : MonoBehaviour
             PlayerPanel.SetActive(true);
             PlayerPanel.transform.parent = CharacterInTheTurn.gameObject.transform;
             PlayerPanel.transform.position = CharacterInTheTurn.transform.position;
-            Vector3 playerCanvasPos = new Vector3(1.5f, 0, 0);
+            
+            var relativePoint = Vector3.zero;
+
+            if (centerOfField)
+            {
+                relativePoint = transform.InverseTransformPoint(centerOfField.position);
+            }
+         
+            //TODO : rivedere
+            Vector3 playerPanelPosition = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? - 1.5f : 1.5f, 2.5f, 0);
 
             //TODO -- rotazione del canvas in direzione della camera
             //la camera si può muovere
-            PlayerPanel.transform.rotation = transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-            PlayerPanel.transform.position += playerCanvasPos;
+            //PlayerPanel.transform.rotation = transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            PlayerPanel.transform.position += playerPanelPosition;
         }
         else
         {
@@ -241,33 +251,30 @@ public class CombatGameMode : MonoBehaviour
                 TimeToAttack = _Timer.totalTurnTime;
                 TimeToAttack -= 3;
             }
-            //print(TimeToAttack);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
         else
         {
-            //ToggleMouseLook();
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
-        ToggleMouseLook();
+        TogglePlayerController();
     }
-    void ToggleMouseLook()
+    //Attiva la rotazione solo di chi è in turno
+    void TogglePlayerController()
     {
-
         foreach (var character in FindObjectsOfType<Character>())
         {
-            if (character.GetComponent<MouseLook>())
+            if (character.GetComponent<PlayerController>())
             {
-                character.gameObject.GetComponent<MouseLook>().enabled = false;
+                character.gameObject.GetComponent<PlayerController>().enabled = false;
             }
         }
         //TODO - si può togliere ?
         if (isPlayerTurn())
         {
-            CharacterInTheTurn.gameObject.GetComponent<MouseLook>().enabled = true;
-            print(CharacterInTheTurn.gameObject.name);
+            CharacterInTheTurn.gameObject.GetComponent<PlayerController>().enabled = true;
         }
     }
 
