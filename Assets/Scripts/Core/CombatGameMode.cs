@@ -34,7 +34,9 @@ public class CombatGameMode : MonoBehaviour
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
     float TimeToAttack = 0f; //TODO RIMUOVERE -- stai dando il peggio di te
-
+   
+    Quaternion currentPlayerPanelRotation;
+    Vector3 currentPlayerPanelPosition = Vector3.zero;
     void Start()
     {
         //TODO - get by string?
@@ -127,22 +129,33 @@ public class CombatGameMode : MonoBehaviour
             {
                 relativePoint = transform.InverseTransformPoint(centerOfField.position);
             }
-         
+
             //TODO : rivedere
-            Vector3 playerPanelPosition = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? - 1.5f : 1.5f, 2.5f, 0);
+            Vector3 playerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? - 1.5f : 1.5f, 2.5f, 0);
 
             //TODO -- rotazione del canvas in direzione della camera
             //la camera si può muovere
-            //PlayerPanel.transform.rotation = transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-            PlayerPanel.transform.position += playerPanelPosition;
+            PlayerPanel.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            PlayerPanel.transform.position += playerPanelPosion;
+            
+            currentPlayerPanelPosition = PlayerPanel.transform.position;
+            currentPlayerPanelRotation = PlayerPanel.transform.rotation;
         }
         else
         {
             PlayerPanel.SetActive(false);
         }
     }
+    void LateUpdate()
+    {
+        //Il playerPanel non cambia la position e rotation
+        if (PlayerPanel && isPlayerTurn())
+        {
+            PlayerPanel.transform.rotation = currentPlayerPanelRotation;
+            PlayerPanel.transform.position = currentPlayerPanelPosition;
+        }
+    }
 
-    
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
@@ -339,4 +352,5 @@ public class CombatGameMode : MonoBehaviour
     {
         _Timer.Time_Zero();
     }
+
 }

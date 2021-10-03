@@ -860,6 +860,10 @@ PrefabInstance:
       value: SwatGuy
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 53569220f0b4abb42933df311d469ce2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 53569220f0b4abb42933df311d469ce2, type: 3}
       propertyPath: m_TagString
       value: Character
       objectReference: {fileID: 0}
@@ -2220,8 +2224,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf80adb515be9649b3a306a17d880f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalSpeed: 2
-  verticalSpeed: 2
 --- !u!1 &1405250489
 GameObject:
   m_ObjectHideFlags: 0
@@ -3070,8 +3072,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf80adb515be9649b3a306a17d880f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizontalSpeed: 2
-  verticalSpeed: 2
 --- !u!4 &1918489607 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 592ca177882caa34b943ce8ea1ad30ba, type: 3}
