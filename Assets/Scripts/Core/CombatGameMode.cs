@@ -328,9 +328,11 @@ public class CombatGameMode : MonoBehaviour
             if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
             {
                 var enemy = CharacterSelected.GetComponent<Enemy>();
+               
                 if (CharacterInTheTurn.weapon)
                 {
                     var weaponDamage = CharacterInTheTurn.weapon.GetComponent<Weapon>().damage;
+                    CharacterInTheTurn.Shoot();
                     enemy.TakeDamage(weaponDamage);
                 }
 

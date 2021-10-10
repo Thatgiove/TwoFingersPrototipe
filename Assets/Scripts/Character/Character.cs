@@ -13,17 +13,23 @@ namespace Assets.Scripts.Character
 
     public class Character : MonoBehaviour
     {
-   
+
         [SerializeField] float MinHealth;
         [SerializeField] float MaxHealth;
         [SerializeField] float MaxMana;
         [SerializeField] float _Health;
-        
+
         [SerializeField] Image FillBar; //TODO -- togliere
         [SerializeField] Canvas CharacterStatsCanvas; //TODO --- lo prendiamo da qua?
-        public GameObject weapon; 
 
-        
+        public GameObject weapon;
+        Weapon wComponent;
+
+        Animator animator;
+
+        bool isReloading = false;
+
+
         public bool HasAttacked;
         public float Health
         {
@@ -41,14 +47,21 @@ namespace Assets.Scripts.Character
         // Start is called before the first frame update
         void Start()
         {
+            animator = gameObject.GetComponent<Animator>();
+            if (weapon)
+            {
+                wComponent = weapon.GetComponent<Weapon>();
+            }
+           
             combatMode = CombatMode.ShootingMode;
 
-            if (CharacterStatsCanvas) {
+            if (CharacterStatsCanvas)
+            {
                 //TODO --- MMMM
                 CharacterStatsCanvas.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
                 _Health = MaxHealth;
             }
-                
+
         }
 
         // Update is called once per frame
@@ -64,7 +77,7 @@ namespace Assets.Scripts.Character
             {
                 CharacterStatsCanvas.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
             }
-           
+
         }
 
         void UseAbility() { }
@@ -80,7 +93,7 @@ namespace Assets.Scripts.Character
             }
             _Health -= amount;
         }
-        
+
 
         //In base alla % di difesa del personaggio 
         //determina se posso colpire
@@ -94,5 +107,49 @@ namespace Assets.Scripts.Character
         {
             return (realDamage - MinHealth) / (MaxHealth - MinHealth);
         }
+
+        public void Shoot()
+        {
+            if (isReloading)
+            {
+                return;
+            }
+
+            if (weapon && wComponent && !wComponent.isEmpty())
+            {
+                wComponent.Shoot();
+                TriggerShootAnimation();
+            }
+            else
+            {
+                isReloading = true;
+                wComponent.Reload();
+                TriggerReloadAnimation();
+            }
+        }
+        void TriggerShootAnimation()
+        {
+            if (animator)
+            {
+                animator.SetTrigger("Shoot");
+            }
+        }
+
+        void TriggerReloadAnimation()
+        {
+            if (animator)
+            {
+                animator.SetTrigger("Reload");
+                StartCoroutine(WaitForEndOfReloading());
+            }
+        }
+
+        //Generica per tutti i tipi di animazione?
+        IEnumerator WaitForEndOfReloading()
+        {
+            yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            isReloading = false;
+        }
+
     }
 }
