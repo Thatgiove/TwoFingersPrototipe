@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Delegates
 {
     public delegate void OnCharacterSelection(GameObject g);
+    public delegate void OnSetCharacterInTurn(GameObject g);
 }
 
 namespace Assets.Scripts.Utils

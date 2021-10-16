@@ -24,7 +24,6 @@ public class CombatGameMode : MonoBehaviour
 
     //l'interfaccia riassuntiva (salute - mana) 
     GameObject LifePanel;
-
     public GameObject CharacterSelected;
     Enemy enemy;
     //Il personaggio nel campo di battaglia attualmente in turno
@@ -151,7 +150,7 @@ public class CombatGameMode : MonoBehaviour
         //Il playerPanel non cambia la position e rotation
         if (PlayerPanel && isPlayerTurn())
         {
-            PlayerPanel.transform.rotation = currentPlayerPanelRotation;
+            PlayerPanel.transform.rotation = Quaternion.Euler(currentPlayerPanelRotation.x, Camera.main.transform.eulerAngles.y, currentPlayerPanelRotation.z);
             PlayerPanel.transform.position = currentPlayerPanelPosition;
         }
     }
@@ -159,6 +158,13 @@ public class CombatGameMode : MonoBehaviour
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+        EventManager<OnSetCharacterInTurn>.Trigger?.Invoke(CharacterQueue.Peek());
+        //if (fieldCamera)
+        //{
+        //    fieldCamera.LookAt = CharacterInTheTurn.transform;
+
+        //}
+
         //print(CharacterInTheTurn.gameObject.name);
         //TODO Gestire diversamente
 
