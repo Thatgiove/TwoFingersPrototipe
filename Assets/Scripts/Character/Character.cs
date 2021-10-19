@@ -20,7 +20,7 @@ namespace Assets.Scripts.Character
         [SerializeField] float _Health;
 
         [SerializeField] Image FillBar; //TODO -- togliere
-        [SerializeField] Canvas CharacterStatsCanvas; //TODO --- lo prendiamo da qua?
+        [SerializeField] Canvas LifePanel; //TODO --- lo prendiamo da qua?
 
         public GameObject weapon;
         Weapon wComponent;
@@ -40,7 +40,9 @@ namespace Assets.Scripts.Character
         [SerializeField] float PhisicalDefenseValue;
         [SerializeField] float PhisicalAttackValue;
 
-        [SerializeField] Character OtherCharacter;
+        //può essere sia nemico che player
+       public GameObject otherCharacter; 
+
         public bool _isDead;
         public CombatMode combatMode;
 
@@ -55,16 +57,14 @@ namespace Assets.Scripts.Character
            
             combatMode = CombatMode.ShootingMode;
 
-            if (CharacterStatsCanvas)
+            if (LifePanel)
             {
                 //TODO --- MMMM
-                CharacterStatsCanvas.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
+                LifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
                 _Health = MaxHealth;
             }
 
         }
-
-        // Update is called once per frame
 
         void Update()
         {
@@ -73,12 +73,35 @@ namespace Assets.Scripts.Character
                 print("Destroy()");
             }
             //TODO -?
-            if (CharacterStatsCanvas)
+            if (LifePanel)
             {
-                CharacterStatsCanvas.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
+                LifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
+            }
+
+            if (otherCharacter)
+            {
+                //var targetPoint = otherCharacter.transform.position;
+                //var targetRotation = Quaternion.LookRotation(targetPoint - transform.position, Vector3.up);
+                //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3f);
+                //StartCoroutine(Spin(2f, targetRotation));
             }
 
         }
+        //IEnumerator Spin(float lerpTime, Quaternion targetRotation)
+        //{
+        //    float elapsedTime = 0f;
+
+        //    while (elapsedTime <= lerpTime)
+        //    {
+        //        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, elapsedTime / lerpTime);
+        //        elapsedTime += Time.deltaTime;
+        //        yield return null;
+        //    }
+        //    otherCharacter = null;
+        //    print("ROTATION END");
+            
+        //    Shoot();
+        //}
 
         void UseAbility() { }
 

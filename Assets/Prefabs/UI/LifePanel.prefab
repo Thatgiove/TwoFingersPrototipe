@@ -322,7 +322,7 @@ GameObject:
   - component: {fileID: 5496254926955220475}
   - component: {fileID: 3594659876946843665}
   m_Layer: 5
-  m_Name: CharacterCanvas
+  m_Name: LifePanelCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -344,7 +344,7 @@ RectTransform:
   - {fileID: 4370283420595439651}
   - {fileID: 7832481646817926540}
   - {fileID: 164421281789213297}
-  m_Father: {fileID: 7049454615489561512}
+  m_Father: {fileID: 7350003470594969666}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -628,15 +628,15 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7049454615489561512}
+  - component: {fileID: 7350003470594969666}
   m_Layer: 0
-  m_Name: CharacterStats
-  m_TagString: Untagged
+  m_Name: LifePanel
+  m_TagString: LifePanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7049454615489561512
+--- !u!4 &7350003470594969666
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

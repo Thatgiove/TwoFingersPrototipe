@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Character
   - UI
+  - LifePanel
   layers:
   - Default
   - TransparentFX

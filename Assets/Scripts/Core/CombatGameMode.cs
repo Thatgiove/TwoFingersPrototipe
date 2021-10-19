@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts;
@@ -21,6 +22,7 @@ public class CombatGameMode : MonoBehaviour
 
     //l'interfaccia di comando del Player 
     GameObject PlayerPanel;
+    GameObject[] LifePanels;
 
     //l'interfaccia riassuntiva (salute - mana) 
     GameObject LifePanel;
@@ -33,14 +35,15 @@ public class CombatGameMode : MonoBehaviour
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
     float TimeToAttack = 0f; //TODO RIMUOVERE -- stai dando il peggio di te
-   
+
     Quaternion currentPlayerPanelRotation;
     Vector3 currentPlayerPanelPosition = Vector3.zero;
     void Start()
     {
         //TODO - get by string?
         PlayerPanel = GameObject.Find("PlayerPanel");
-       
+        LifePanels = GameObject.FindGameObjectsWithTag("LifePanel");
+
         if (PlayerPanel != null)
         {
             PlayerPanel.SetActive(false);
@@ -65,8 +68,6 @@ public class CombatGameMode : MonoBehaviour
             if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
-               
-                //CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
 
                 //TODO - check player turn
                 if (PlayerPanel)
@@ -86,7 +87,6 @@ public class CombatGameMode : MonoBehaviour
         {
             EnemyAttackPlayer();
         }
-        
     }
 
     //attacca la schermata di comandi a quel player
@@ -102,7 +102,7 @@ public class CombatGameMode : MonoBehaviour
             {
                 LifePanel.SetActive(true);
             }
-            
+
             //controlla se il character è in defense mode
             //in tal caso attiva il Text
             Transform current = LifePanel.transform.GetChild(0);
@@ -121,7 +121,7 @@ public class CombatGameMode : MonoBehaviour
             PlayerPanel.SetActive(true);
             PlayerPanel.transform.parent = CharacterInTheTurn.gameObject.transform;
             PlayerPanel.transform.position = CharacterInTheTurn.transform.position;
-            
+
             var relativePoint = Vector3.zero;
 
             if (centerOfField)
@@ -130,13 +130,12 @@ public class CombatGameMode : MonoBehaviour
             }
 
             //TODO : rivedere
-            Vector3 playerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? - 1.5f : 1.5f, 2.5f, 0);
+            Vector3 playerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2.5f, 0);
 
-            //TODO -- rotazione del canvas in direzione della camera
-            //la camera si può muovere
+
             PlayerPanel.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
             PlayerPanel.transform.position += playerPanelPosion;
-            
+
             currentPlayerPanelPosition = PlayerPanel.transform.position;
             currentPlayerPanelRotation = PlayerPanel.transform.rotation;
         }
@@ -147,6 +146,15 @@ public class CombatGameMode : MonoBehaviour
     }
     void LateUpdate()
     {
+        //rotazione dei canvas in direzione della camera
+        //ruota tutti i life panel
+        if (LifePanels.Length > 0)
+        {
+            for (int i = 0; i < LifePanels.Length; i++)
+            {
+                LifePanels[i].transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            }
+        }
         //Il playerPanel non cambia la position e rotation
         if (PlayerPanel && isPlayerTurn())
         {
@@ -158,16 +166,14 @@ public class CombatGameMode : MonoBehaviour
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+        
+        //emette evento per CameraManager
         EventManager<OnSetCharacterInTurn>.Trigger?.Invoke(CharacterQueue.Peek());
-        //if (fieldCamera)
-        //{
-        //    fieldCamera.LookAt = CharacterInTheTurn.transform;
 
-        //}
+        //CombatMode di default
+        ChangeCombatMode((int)CombatMode.ShootingMode);
 
-        //print(CharacterInTheTurn.gameObject.name);
         //TODO Gestire diversamente
-
         if (PlayerPanel)
         {
             AttachPlayerCanvas();
@@ -310,17 +316,37 @@ public class CombatGameMode : MonoBehaviour
             var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
             if (enemy.weapon)
             {
-                var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
-                var tmp = playersList[Random.Range(0, playersList.Count)];
-                tmp.TakeDamage(weaponDamage);
-                //print(tmp.gameObject.name);
-                //TODO per il momento seleziona casualmente il player
+                //TODO -- per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
                 //selezioni il giocatore da attaccare
+                var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
+                var playerSelected = playersList[Random.Range(0, playersList.Count)];
+                
+                enemy.otherCharacter = playerSelected.gameObject;
+
+               //playerSelected.TakeDamage(weaponDamage);
+               StartCoroutine(WaitEndOfRotation(2f, Quaternion.LookRotation(playerSelected.gameObject.transform.position - enemy.transform.position, Vector3.up)));
+
             }
-            EndTurn();
+            //EndTurn();
         }
 
+    }
+    IEnumerator WaitEndOfRotation(float lerpTime, Quaternion targetRotation)
+    {
+        float elapsedTime = 0f;
+
+        while (elapsedTime <= lerpTime)
+        {
+            enemy.transform.rotation = Quaternion.Slerp(enemy.transform.rotation, targetRotation, elapsedTime / lerpTime);
+            elapsedTime += (Time.deltaTime * 4f);
+            //print(elapsedTime);
+            yield return null;
+        }
+        enemy.Shoot();
+        //playerSelected.TakeDamage(weaponDamage);
+        EndTurn();
+        
     }
 
     void SelectCharacter(GameObject charSelected)
@@ -334,7 +360,7 @@ public class CombatGameMode : MonoBehaviour
             if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
             {
                 var enemy = CharacterSelected.GetComponent<Enemy>();
-               
+
                 if (CharacterInTheTurn.weapon)
                 {
                     var weaponDamage = CharacterInTheTurn.weapon.GetComponent<Weapon>().damage;
@@ -353,7 +379,9 @@ public class CombatGameMode : MonoBehaviour
             CharacterInTheTurn.combatMode = (CombatMode)combatMode;
         }
         if (combatMode == (int)CombatMode.DefenseMode)
+        {
             EndTurn();
+        }
     }
 
     void EndTurn()
