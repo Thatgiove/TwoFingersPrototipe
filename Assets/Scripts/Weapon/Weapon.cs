@@ -2,30 +2,42 @@
 
 public class Weapon : MonoBehaviour
 {
-    public float damage = 0.3f;
-    [SerializeField]  int ammo = 3;
-    [SerializeField]  int maxAmmo = 3;
+    public float damage = 0.5f;
+    public int ammo = 0;
+    [SerializeField]  int numberOfShots = 3;
+    [SerializeField]  int maxShots = 3;
 
+    private void Start()
+    {
+        ammo = SetAmmo();
+    }
     public void Shoot()
     {
         if (!isEmpty())
         {
-            ammo--;
+            numberOfShots--;
+            ammo -= maxShots;
         }
         else
         {
-            Reload();
+            Reloading();
         }
        
     }
     public bool isEmpty()
     {
-        return ammo <= 0;
+        return numberOfShots <= 0;
     }
 
-    public void Reload()
+    public void Reloading()
     {
-        ammo = maxAmmo;
+        numberOfShots = maxShots;
+        ammo = SetAmmo();
+    }
+
+    int SetAmmo()
+    {
+        return numberOfShots * numberOfShots;
     }
 }
 

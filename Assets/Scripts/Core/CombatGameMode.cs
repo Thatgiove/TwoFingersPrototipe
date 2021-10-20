@@ -319,33 +319,47 @@ public class CombatGameMode : MonoBehaviour
                 //TODO -- per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
                 //selezioni il giocatore da attaccare
-                var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
+                //var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
                 var playerSelected = playersList[Random.Range(0, playersList.Count)];
                 
                 enemy.otherCharacter = playerSelected.gameObject;
 
                //playerSelected.TakeDamage(weaponDamage);
-               StartCoroutine(WaitEndOfRotation(2f, Quaternion.LookRotation(playerSelected.gameObject.transform.position - enemy.transform.position, Vector3.up)));
+               //TODO - mettere nel character
+               StartCoroutine(WaitEndOfRotation(2f, enemy, playerSelected));
 
             }
             //EndTurn();
         }
 
     }
-    IEnumerator WaitEndOfRotation(float lerpTime, Quaternion targetRotation)
+    //I personaggi si girano verso il nemico 
+    //e attaccano alla fine della rotazione
+    IEnumerator WaitEndOfRotation(float lerpTime,
+        Character shooter, 
+        Character receiver)
     {
         float elapsedTime = 0f;
 
         while (elapsedTime <= lerpTime)
         {
-            enemy.transform.rotation = Quaternion.Slerp(enemy.transform.rotation, targetRotation, elapsedTime / lerpTime);
-            elapsedTime += (Time.deltaTime * 4f);
-            //print(elapsedTime);
+            shooter.transform.rotation = Quaternion.Slerp(
+                shooter.transform.rotation,
+                Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up), 
+                elapsedTime / lerpTime);
+
+            elapsedTime += (Time.deltaTime * 10f);
             yield return null;
         }
-        enemy.Shoot();
-        //playerSelected.TakeDamage(weaponDamage);
-        EndTurn();
+        shooter.Shoot();
+        receiver.TakeDamage(shooter.weapon.GetComponent<Weapon>().damage);
+       
+        //TODO Provvisorio
+        if (shooter == enemy)
+        {
+            EndTurn();
+        }
+       
         
     }
 
@@ -361,11 +375,9 @@ public class CombatGameMode : MonoBehaviour
             {
                 var enemy = CharacterSelected.GetComponent<Enemy>();
 
-                if (CharacterInTheTurn.weapon)
+                if (CharacterInTheTurn.weapon && CharacterInTheTurn.CanHit())
                 {
-                    var weaponDamage = CharacterInTheTurn.weapon.GetComponent<Weapon>().damage;
-                    CharacterInTheTurn.Shoot();
-                    enemy.TakeDamage(weaponDamage);
+                    StartCoroutine(WaitEndOfRotation(2f, CharacterInTheTurn, enemy));
                 }
 
             }

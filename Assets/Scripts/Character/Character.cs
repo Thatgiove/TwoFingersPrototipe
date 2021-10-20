@@ -27,7 +27,7 @@ namespace Assets.Scripts.Character
 
         Animator animator;
 
-        bool isReloading = false;
+        public bool isReloading { get; set; } = false;
 
 
         public bool HasAttacked;
@@ -80,34 +80,20 @@ namespace Assets.Scripts.Character
 
             if (otherCharacter)
             {
-                //var targetPoint = otherCharacter.transform.position;
-                //var targetRotation = Quaternion.LookRotation(targetPoint - transform.position, Vector3.up);
-                //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3f);
-                //StartCoroutine(Spin(2f, targetRotation));
+                
             }
 
+            //if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Reloading"))
+            //{
+            //    isReloading = false;
+            //}
         }
-        //IEnumerator Spin(float lerpTime, Quaternion targetRotation)
-        //{
-        //    float elapsedTime = 0f;
 
-        //    while (elapsedTime <= lerpTime)
-        //    {
-        //        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, elapsedTime / lerpTime);
-        //        elapsedTime += Time.deltaTime;
-        //        yield return null;
-        //    }
-        //    otherCharacter = null;
-        //    print("ROTATION END");
-            
-        //    Shoot();
-        //}
 
         void UseAbility() { }
 
         public void TakeDamage(float amount)
         {
-            //print(amount);
             if (_Health <= 0) return;
 
             if (FillBar)
@@ -119,10 +105,10 @@ namespace Assets.Scripts.Character
 
 
         //In base alla % di difesa del personaggio 
-        //determina se posso colpire
-        bool CanHit()
+        //determina se posso colpire o se sono in fase di ricarica
+        public bool CanHit()
         {
-            return false;
+            return wComponent && !wComponent.isEmpty();
         }
 
         //Il danno convertito nel range 0 - 1
@@ -143,12 +129,13 @@ namespace Assets.Scripts.Character
                 wComponent.Shoot();
                 TriggerShootAnimation();
             }
-            else
-            {
-                isReloading = true;
-                wComponent.Reload();
-                TriggerReloadAnimation();
-            }
+        }
+        
+        public void Reload()
+        {
+            isReloading = true;
+            wComponent.Reloading();
+            TriggerReloadAnimation();
         }
         void TriggerShootAnimation()
         {
@@ -163,14 +150,14 @@ namespace Assets.Scripts.Character
             if (animator)
             {
                 animator.SetTrigger("Reload");
-                StartCoroutine(WaitForEndOfReloading());
+                StartCoroutine(WaitForEndOfReloading(animator.GetCurrentAnimatorStateInfo(0).speed));
             }
         }
 
         //Generica per tutti i tipi di animazione?
-        IEnumerator WaitForEndOfReloading()
+        IEnumerator WaitForEndOfReloading(float delay)
         {
-            yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            yield return new WaitForSeconds(delay);
             isReloading = false;
         }
 

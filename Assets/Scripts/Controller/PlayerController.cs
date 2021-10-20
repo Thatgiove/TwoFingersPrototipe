@@ -9,9 +9,11 @@ public class PlayerController : MonoBehaviour
     Ray ray;
     RaycastHit hit;
     Transform enemy;
+    Character player;
 
     void Awake()
     {
+        player = GetComponent<Character>();
     }
     void Start()
     {
@@ -30,16 +32,13 @@ public class PlayerController : MonoBehaviour
             {
                 enemy = hit.transform;
                 EventManager<OnCharacterSelection>.Trigger?.Invoke(hit.transform.gameObject);
-                RotateToEnemy();
             }
         }
-    }
+        //reloading
+        if (Input.GetKeyDown(KeyCode.R) && player && player.weapon && !player.isReloading)
+        {
+            player.Reload();
+        }
 
-    void RotateToEnemy()
-    {
-        Vector3 lookVector = enemy.position - gameObject.transform.position;
-        lookVector.y = gameObject.transform.position.y;
-        Quaternion rot = Quaternion.LookRotation(lookVector);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rot, 1);
     }
 }
