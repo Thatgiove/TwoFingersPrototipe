@@ -355,12 +355,12 @@ public class CombatGameMode : MonoBehaviour
         receiver.TakeDamage(shooter.weapon.GetComponent<Weapon>().damage);
        
         //TODO Provvisorio
-        if (shooter == enemy)
-        {
-            EndTurn();
-        }
-       
-        
+        //if (shooter == enemy)
+        //{
+        //    EndTurn();
+        //}
+
+        EndTurn();
     }
 
     void SelectCharacter(GameObject charSelected)
