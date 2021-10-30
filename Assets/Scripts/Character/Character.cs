@@ -89,7 +89,13 @@ namespace Assets.Scripts.Character
             //}
         }
 
-
+        void PlayShootSound()
+        {
+            if (wComponent)
+            {
+                wComponent.PlayShootSound();
+            }
+        }
         void UseAbility() { }
 
         public void TakeDamage(float amount)

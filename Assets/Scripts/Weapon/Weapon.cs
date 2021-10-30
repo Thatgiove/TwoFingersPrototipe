@@ -1,13 +1,16 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Character;
+using Assets.Scripts.Utils;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Weapon : MonoBehaviour
 {
+    AudioSource audioSource;
     public float damage = 0.5f;
     int ammo = 0;
     int totalAmmo = 100; //dipende dagli oggetti
-    int magazine = 10; //caricatore
-    
+    int magazine = 5; //caricatore
+    public AudioClip shootClip;
     [SerializeField] Canvas WeaponCanvas;
 
     //TODO implementare modalità di fuoco 
@@ -16,6 +19,7 @@ public class Weapon : MonoBehaviour
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         ammo = magazine;
     }
     void Update()
@@ -30,18 +34,37 @@ public class Weapon : MonoBehaviour
     {
         if (!isEmpty())
         {
-            ammo -= 3;
+           
+            ammo = Mathf.Clamp(ammo -= 3, 0, magazine);
         }
 
+        ActivateReloadText();
     }
     public bool isEmpty()
     {
         return ammo <= 0;
     }
+    public void PlayShootSound()
+    {
+        if (audioSource && shootClip)
+        {
+            audioSource.PlayOneShot(shootClip);
+        }
 
+    }
+    void ActivateReloadText()
+    {
+        //TODO : valutare se rimuovere la classe enemy e utilizzare i tag
+        if (isEmpty() && WeaponCanvas && !Utils.HasComponent<Enemy>(gameObject))
+        {
+            WeaponCanvas.transform.Find("Reload").gameObject.SetActive(true);
+        }
+    }
+    //TODO : rivedere i calcoli
     public void Reloading()
     {
-        if(ammo <= 0)
+        WeaponCanvas.transform.Find("Reload").gameObject.SetActive(false);
+        if (ammo <= 0)
         {
             totalAmmo -= magazine;
         }
