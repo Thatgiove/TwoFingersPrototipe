@@ -48,7 +48,8 @@ public class Weapon : MonoBehaviour
     {
         if (audioSource && shootClip)
         {
-            audioSource.PlayOneShot(shootClip);
+            //audioSource.PlayOneShot(shootClip);
+            AudioSource.PlayClipAtPoint(shootClip, gameObject.transform.position);
         }
 
     }

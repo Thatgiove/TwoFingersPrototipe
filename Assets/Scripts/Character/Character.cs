@@ -89,6 +89,7 @@ namespace Assets.Scripts.Character
             //}
         }
 
+        //viene chiamato da un evento segnato nell'animazione Gunplay
         void PlayShootSound()
         {
             if (wComponent)
@@ -106,7 +107,9 @@ namespace Assets.Scripts.Character
             {
                 FillBar.fillAmount -= NormalizedDamage(amount);
             }
+            TriggerHitReactionAnimation();
             _Health -= amount;
+
         }
 
 
@@ -148,6 +151,16 @@ namespace Assets.Scripts.Character
             if (animator)
             {
                 animator.SetTrigger("Shoot");
+            }
+        }
+        void TriggerHitReactionAnimation()
+        {
+            //if (!otherCharacter) return;
+
+            //var animator = otherCharacter.GetComponent<Animator>();
+            if (animator)
+            {
+                animator.SetTrigger("HitReaction");
             }
         }
 
