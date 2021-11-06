@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -50,9 +48,12 @@ public class Timer : MonoBehaviour
 
         float minutes = Mathf.FloorToInt(timeToDisplay / 60);
         float seconds = Mathf.FloorToInt(timeToDisplay % 60);
-        //Debug.Log(string.Format("{0:00}:{1:00}", minutes, seconds));
+        float fraction = Mathf.FloorToInt(timeToDisplay * 100) % 100;
         if (timeText)
-            timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        {
+            timeText.text =  string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, fraction);
+        }
+          
     }
 
     public void Time2X()
