@@ -2,15 +2,24 @@
 using Assets.Scripts.Utils;
 using UnityEngine;
 using UnityEngine.UI;
-
+public enum ShootType
+{
+    OneShoot = 1,
+    Automatic,
+    SemiAutomatic
+}
 public class Weapon : MonoBehaviour
 {
+    
     AudioSource audioSource;
     public float damage = 0.5f;
-    int ammo = 0;
-    int totalAmmo = 100; //dipende dagli oggetti
-    int magazine = 5; //caricatore
     public AudioClip shootClip;
+
+    public ShootType shootType;
+    int ammo = 0;
+    [SerializeField] int totalAmmo = 100; //dipende dagli oggetti
+    [SerializeField] int magazine = 5; //caricatore
+  
     [SerializeField] Canvas WeaponCanvas;
 
     //TODO implementare modalità di fuoco 
@@ -34,11 +43,24 @@ public class Weapon : MonoBehaviour
     {
         if (!isEmpty())
         {
-           
-            ammo = Mathf.Clamp(ammo -= 3, 0, magazine);
+            HandleReloading();
         }
 
         ActivateReloadText();
+    }
+    void HandleReloading()
+    {
+        switch (shootType)
+        {
+            case ShootType.SemiAutomatic:
+                ammo = Mathf.Clamp(ammo -= 3, 0, magazine);
+                break;
+            case ShootType.Automatic:
+                break;
+            default:
+                ammo = Mathf.Clamp(ammo -= 1, 0, magazine);
+                break;
+        }
     }
     public bool isEmpty()
     {
