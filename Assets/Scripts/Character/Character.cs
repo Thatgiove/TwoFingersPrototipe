@@ -1,3 +1,5 @@
+using Assets.Scripts.Delegates;
+using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -82,16 +84,12 @@ namespace Assets.Scripts.Character
             {
                 
             }
-
-            //if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Reloading"))
-            //{
-            //    isReloading = false;
-            //}
         }
 
         //viene chiamato da un evento segnato nell'animazione Gunplay
         void PlayShootSound()
         {
+           
             if (wComponent)
             {
                 wComponent.PlayShootSound();
@@ -112,7 +110,6 @@ namespace Assets.Scripts.Character
 
         }
 
-
         //In base alla % di difesa del personaggio 
         //determina se posso colpire o se sono in fase di ricarica
         public bool CanHit()
@@ -132,11 +129,17 @@ namespace Assets.Scripts.Character
             {
                 return;
             }
-
+          
             if (weapon && wComponent && !wComponent.isEmpty())
             {
                 wComponent.Shoot();
                 TriggerShootAnimation();
+                StartCoroutine(WaitForEndOfShoot(animator.GetCurrentAnimatorStateInfo(0).speed));
+            }
+            //Se è ememy ricarica e attacca
+            else if (weapon && wComponent && wComponent.isEmpty() && GetComponent<AIController>())
+            {
+                Reload();
             }
         }
         
@@ -155,9 +158,6 @@ namespace Assets.Scripts.Character
         }
         void TriggerHitReactionAnimation()
         {
-            //if (!otherCharacter) return;
-
-            //var animator = otherCharacter.GetComponent<Animator>();
             if (animator)
             {
                 animator.SetTrigger("HitReaction");
@@ -173,12 +173,53 @@ namespace Assets.Scripts.Character
             }
         }
 
-        //Generica per tutti i tipi di animazione?
+        //I personaggi si girano verso il nemico 
+        //e attaccano alla fine della rotazione
+        //alla fine dell'animazione dell'attacco 
+        //emette un evento intercettato da combatGameMode
+        //che fa passare il turno
+        public IEnumerator AttackCharacterAtTheEndOfRotation(float lerpTime,
+            Character shooter,
+            Character receiver)
+        {
+            otherCharacter = receiver.gameObject;
+
+            float elapsedTime = 0f;
+
+            while (elapsedTime <= lerpTime)
+            {
+                shooter.transform.rotation = Quaternion.Slerp(
+                    shooter.transform.rotation,
+                    Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up),
+                    elapsedTime / lerpTime);
+
+                elapsedTime += (Time.deltaTime * 10f);
+                yield return null;
+            }
+
+            shooter.Shoot();
+            //receiver.TakeDamage(shooter.weapon.GetComponent<Weapon>().damage);
+            //StartCoroutine(WaitForEndOfShoot(animator.GetCurrentAnimatorStateInfo(0).speed));
+        }
+
+        IEnumerator WaitForEndOfShoot(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+          
+            otherCharacter.GetComponent<Character>().TakeDamage(wComponent.damage);
+            EventManager<OnAnimationEnd>.Trigger?.Invoke();
+            
+        }
         IEnumerator WaitForEndOfReloading(float delay)
         {
             yield return new WaitForSeconds(delay);
             isReloading = false;
+            
+            //Se è enemy attacca nuovamente il player
+            if (GetComponent<AIController>())
+            {
+                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
+            }
         }
-
     }
 }

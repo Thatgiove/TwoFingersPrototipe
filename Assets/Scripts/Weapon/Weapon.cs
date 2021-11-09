@@ -86,7 +86,11 @@ public class Weapon : MonoBehaviour
     //TODO : rivedere i calcoli
     public void Reloading()
     {
-        WeaponCanvas.transform.Find("Reload").gameObject.SetActive(false);
+        if (WeaponCanvas)
+        {
+            WeaponCanvas.transform.Find("Reload").gameObject.SetActive(false);
+        }
+        
         if (ammo <= 0)
         {
             totalAmmo -= magazine;

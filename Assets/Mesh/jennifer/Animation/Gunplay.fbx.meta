@@ -62,7 +62,7 @@ ModelImporter:
       - time: 0.44562337
         functionName: PlayShootSound
         data: 
-        objectReferenceParameter: {fileID: 919132149155446097, guid: 1cec8ada72834724684f87864212eacf, type: 3}
+        objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0

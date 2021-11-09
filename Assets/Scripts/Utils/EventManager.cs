@@ -5,6 +5,7 @@ namespace Assets.Scripts.Delegates
 {
     public delegate void OnCharacterSelection(GameObject g);
     public delegate void OnSetCharacterInTurn(GameObject g);
+    public delegate void OnAnimationEnd();
 }
 
 namespace Assets.Scripts.Utils

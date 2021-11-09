@@ -38,6 +38,7 @@ public class CombatGameMode : MonoBehaviour
 
     Quaternion currentPlayerPanelRotation;
     Vector3 currentPlayerPanelPosition = Vector3.zero;
+
     void Start()
     {
         //TODO - get by string?
@@ -51,6 +52,7 @@ public class CombatGameMode : MonoBehaviour
 
         CreateTurn();
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
+        EventManager<OnAnimationEnd>.Register(EndTurn);
     }
 
     void Update()
@@ -326,43 +328,13 @@ public class CombatGameMode : MonoBehaviour
 
                //playerSelected.TakeDamage(weaponDamage);
                //TODO - mettere nel character
-               StartCoroutine(WaitEndOfRotation(2f, enemy, playerSelected));
+               StartCoroutine(enemy.AttackCharacterAtTheEndOfRotation(2f, enemy, playerSelected));
 
             }
-            //EndTurn();
         }
 
     }
-    //I personaggi si girano verso il nemico 
-    //e attaccano alla fine della rotazione
-    IEnumerator WaitEndOfRotation(float lerpTime,
-        Character shooter, 
-        Character receiver)
-    {
-        float elapsedTime = 0f;
-
-        while (elapsedTime <= lerpTime)
-        {
-            shooter.transform.rotation = Quaternion.Slerp(
-                shooter.transform.rotation,
-                Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up), 
-                elapsedTime / lerpTime);
-
-            elapsedTime += (Time.deltaTime * 10f);
-            yield return null;
-        }
-        shooter.Shoot();
-        receiver.TakeDamage(shooter.weapon.GetComponent<Weapon>().damage);
-       
-        //TODO Provvisorio
-        //if (shooter == enemy)
-        //{
-        //    EndTurn();
-        //}
-
-        EndTurn();
-    }
-
+   
     void SelectCharacter(GameObject charSelected)
     {
         //Il CharacterSelected può essere anche un alleato 
@@ -378,7 +350,7 @@ public class CombatGameMode : MonoBehaviour
 
                 if (CharacterInTheTurn.weapon && CharacterInTheTurn.CanHit())
                 {
-                    StartCoroutine(WaitEndOfRotation(2f, CharacterInTheTurn, enemy));
+                    StartCoroutine(CharacterInTheTurn.AttackCharacterAtTheEndOfRotation(2f, CharacterInTheTurn, enemy));
                 }
 
             }
