@@ -14,18 +14,22 @@ using UnityEngine.UI;
  */
 public class CombatGameMode : MonoBehaviour
 {
-    [SerializeField] Timer _Timer;
+    [SerializeField] Timer timer;
     [SerializeField] Transform centerOfField;
 
     MainCanvas canvas;
     GameObject[] Characters;
 
     //l'interfaccia di comando del Player 
-    GameObject PlayerPanel;
+    GameObject[] PlayerPanels;
     GameObject[] LifePanels;
 
     //l'interfaccia riassuntiva (salute - mana) 
     GameObject LifePanel;
+    //L'interfaccia di comando del player
+    GameObject playerPanel;
+
+
     public GameObject CharacterSelected;
     Enemy enemy;
     //Il personaggio nel campo di battaglia attualmente in turno
@@ -39,15 +43,21 @@ public class CombatGameMode : MonoBehaviour
     Quaternion currentPlayerPanelRotation;
     Vector3 currentPlayerPanelPosition = Vector3.zero;
 
+
+
     void Start()
     {
         //TODO - get by string?
-        PlayerPanel = GameObject.Find("PlayerPanel");
+        PlayerPanels = GameObject.FindGameObjectsWithTag("PlayerPanel");
         LifePanels = GameObject.FindGameObjectsWithTag("LifePanel");
 
-        if (PlayerPanel != null)
+        if (PlayerPanels.Length > 0)
         {
-            PlayerPanel.SetActive(false);
+            for (int i = 0; i < PlayerPanels.Length; i++)
+            {
+                PlayerPanels[i].SetActive(false);
+            }
+
         }
 
         CreateTurn();
@@ -57,8 +67,17 @@ public class CombatGameMode : MonoBehaviour
 
     void Update()
     {
-        if (_Timer && _Timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
+        //Alla fine del turno il valore della tensione del player 
+        //aumenta e il tempo del suo turno diminuisce
+        if (timer && timer.isTurnOver && CharacterInTheTurn.GetComponent<PlayerController>())
         {
+            //print(CharacterInTheTurn.gameObject.name + ": turn end");
+            CharacterInTheTurn.SetTensionBar(0.05f);
+        }
+
+        if (timer && timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
+        {
+
             CharacterInTheTurn = null;
 
             //distrugge il flag della turnazione precedente
@@ -70,12 +89,7 @@ public class CombatGameMode : MonoBehaviour
             if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
-
-                //TODO - check player turn
-                if (PlayerPanel)
-                {
-                    AttachPlayerCanvas();
-                }
+                HandleCharactersUI();
                 HandleInput();
             }
             else
@@ -84,7 +98,9 @@ public class CombatGameMode : MonoBehaviour
                 CreateTurn();
             }
         }
-        ///////TODO -----------mmm non mi convince per niente
+
+
+        //TODO -----------mmm non mi convince per niente
         if (!isPlayerTurn())
         {
             EnemyAttackPlayer();
@@ -92,11 +108,9 @@ public class CombatGameMode : MonoBehaviour
     }
 
     //attacca la schermata di comandi a quel player
-    void AttachPlayerCanvas()
+    void HandleCharactersUI()
     {
         //riattiva i life panel di tutti i personaggi
-        //TODO rifare
-        //TODO il get character può tornare utile in altre occasioni
         foreach (var obj in FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)))
         {
             LifePanel = obj.transform.Find("LifePanel").gameObject;
@@ -111,18 +125,24 @@ public class CombatGameMode : MonoBehaviour
             current = current.GetChild(0);
             current.gameObject.SetActive(obj.combatMode == CombatMode.DefenseMode);
         }
+        //disattiva tutti i playerPanel
+        foreach (var player in FindObjectsOfType<PlayerController>())
+        {
+            playerPanel = player.transform.Find("PlayerPanel").gameObject;
+            if (playerPanel)
+            {
+                playerPanel.SetActive(false);
+            }
+        }
 
         if (isPlayerTurn())
         {
+            //disattiva il panel riepilogativo
             var lifePanel = CharacterInTheTurn.transform.Find("LifePanel");
             if (lifePanel)
             {
                 lifePanel.gameObject.SetActive(false);
             }
-
-            PlayerPanel.SetActive(true);
-            PlayerPanel.transform.parent = CharacterInTheTurn.gameObject.transform;
-            PlayerPanel.transform.position = CharacterInTheTurn.transform.position;
 
             var relativePoint = Vector3.zero;
 
@@ -131,19 +151,18 @@ public class CombatGameMode : MonoBehaviour
                 relativePoint = transform.InverseTransformPoint(centerOfField.position);
             }
 
-            //TODO : rivedere
-            Vector3 playerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2.5f, 0);
+            playerPanel = CharacterInTheTurn.transform.Find("PlayerPanel").gameObject;
+            if (playerPanel)
+            {
+                playerPanel.gameObject.SetActive(true);
+                playerPanel.transform.position = CharacterInTheTurn.transform.position;
+                playerPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+                Vector3 newPlayerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2f, 0);
 
-
-            PlayerPanel.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-            PlayerPanel.transform.position += playerPanelPosion;
-
-            currentPlayerPanelPosition = PlayerPanel.transform.position;
-            currentPlayerPanelRotation = PlayerPanel.transform.rotation;
-        }
-        else
-        {
-            PlayerPanel.SetActive(false);
+                playerPanel.transform.position += newPlayerPanelPosion;
+                currentPlayerPanelPosition = playerPanel.transform.position;
+                currentPlayerPanelRotation = playerPanel.transform.rotation;
+            }
         }
     }
     void LateUpdate()
@@ -158,17 +177,41 @@ public class CombatGameMode : MonoBehaviour
             }
         }
         //Il playerPanel non cambia la position e rotation
-        if (PlayerPanel && isPlayerTurn())
+        if (isPlayerTurn())
         {
-            PlayerPanel.transform.rotation = Quaternion.Euler(currentPlayerPanelRotation.x, Camera.main.transform.eulerAngles.y, currentPlayerPanelRotation.z);
-            PlayerPanel.transform.position = currentPlayerPanelPosition;
+            playerPanel.transform.rotation = Quaternion.Euler(currentPlayerPanelRotation.x, Camera.main.transform.eulerAngles.y, currentPlayerPanelRotation.z);
+            playerPanel.transform.position = currentPlayerPanelPosition;
         }
+
+
+    }
+    void SetCharacterTurnTime()
+    {
+        if (!timer) { return; }
+
+        float characterTurnTime = 0;
+
+        //TODO - da rivedere: per il momento il turno del nemico viene sempre
+        //settato sulla durata standard
+        if (CharacterInTheTurn.GetComponent<PlayerController>())
+        {
+            characterTurnTime = CharacterInTheTurn.characterTurnTime;
+        }
+        else if (CharacterInTheTurn.GetComponent<AIController>())
+        {
+            characterTurnTime = timer.GetStandardTurnTime();
+        }
+
+        timer.totalTurnTime = characterTurnTime;
+        timer.timeRemaining = timer.totalTurnTime;
+        timer.SetSliderToMax();
     }
 
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
-        
+        SetCharacterTurnTime();
+
         //emette evento per CameraManager
         EventManager<OnSetCharacterInTurn>.Trigger?.Invoke(CharacterQueue.Peek());
 
@@ -176,10 +219,7 @@ public class CombatGameMode : MonoBehaviour
         ChangeCombatMode((int)CombatMode.ShootingMode);
 
         //TODO Gestire diversamente
-        if (PlayerPanel)
-        {
-            AttachPlayerCanvas();
-        }
+        HandleCharactersUI();
 
         HandleInput();
 
@@ -271,11 +311,11 @@ public class CombatGameMode : MonoBehaviour
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
             //TODO creare un sistema di calcolo dell'attacco nemico
-            TimeToAttack = enemy.CalculateAttackTime(_Timer.totalTurnTime) + _Timer.totalTurnTime / 2;
+            TimeToAttack = enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
 
-            if (TimeToAttack >= _Timer.totalTurnTime)
+            if (TimeToAttack >= timer.totalTurnTime)
             {
-                TimeToAttack = _Timer.totalTurnTime;
+                TimeToAttack = timer.totalTurnTime;
                 TimeToAttack -= 3;
             }
             Cursor.lockState = CursorLockMode.Locked;
@@ -310,9 +350,10 @@ public class CombatGameMode : MonoBehaviour
         return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn.gameObject);
     }
 
+    //TODO - questa logica va spostata nell'AI controller
     void EnemyAttackPlayer()
     {
-        if (_Timer.timeRemaining <= TimeToAttack)
+        if (timer.timeRemaining <= TimeToAttack)
         {
             TimeToAttack = 0;
             var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
@@ -323,18 +364,18 @@ public class CombatGameMode : MonoBehaviour
                 //selezioni il giocatore da attaccare
                 //var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
                 var playerSelected = playersList[Random.Range(0, playersList.Count)];
-                
+
                 enemy.otherCharacter = playerSelected.gameObject;
 
-               //playerSelected.TakeDamage(weaponDamage);
-               //TODO - mettere nel character
-               StartCoroutine(enemy.AttackCharacterAtTheEndOfRotation(2f, enemy, playerSelected));
+                //playerSelected.TakeDamage(weaponDamage);
+                //TODO - mettere nel character
+                StartCoroutine(enemy.AttackCharacterAtTheEndOfRotation(2f, enemy, playerSelected));
 
             }
         }
 
     }
-   
+
     void SelectCharacter(GameObject charSelected)
     {
         //Il CharacterSelected può essere anche un alleato 
@@ -371,7 +412,7 @@ public class CombatGameMode : MonoBehaviour
 
     void EndTurn()
     {
-        _Timer.Time_Zero();
+        timer.Time_Zero();
     }
 
 }

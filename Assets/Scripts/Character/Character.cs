@@ -15,48 +15,54 @@ namespace Assets.Scripts.Character
 
     public class Character : MonoBehaviour
     {
-
         [SerializeField] float MinHealth;
         [SerializeField] float MaxHealth;
         [SerializeField] float MaxMana;
         [SerializeField] float _Health;
+        [SerializeField] Image fillBar; //TODO - prendere il playerPanel
+        [SerializeField] Image tensionBar; //TODO - prendere il playerPanel
+        [SerializeField] Canvas LifePanel; //TODO - lo prendiamo da qua?
+        Timer timer;
+        public float characterTurnTime;
 
-        [SerializeField] Image FillBar; //TODO -- togliere
-        [SerializeField] Canvas LifePanel; //TODO --- lo prendiamo da qua?
-
+        //la barra della tensione, ma mano che aumenta il tempo del turno diminuisce
+        public float tension = 0f;
+        //l'ammontare del turno del personaggio: dipende dalla tension
+        
         public GameObject weapon;
         Weapon wComponent;
-
         Animator animator;
-
         public bool isReloading { get; set; } = false;
-
-
         public bool HasAttacked;
         public float Health
         {
             get { return _Health; }
         }
         [SerializeField] float Mana;
-
         [SerializeField] float PhisicalDefenseValue;
         [SerializeField] float PhisicalAttackValue;
-
         //può essere sia nemico che player
-       public GameObject otherCharacter; 
-
+        public GameObject otherCharacter;
         public bool _isDead;
         public CombatMode combatMode;
-
+        void Awake()
+        {
+            timer = FindObjectOfType<Timer>();
+            if (timer)
+            {
+                characterTurnTime = timer.GetStandardTurnTime();
+            }
+        }
         // Start is called before the first frame update
         void Start()
         {
+           
             animator = gameObject.GetComponent<Animator>();
             if (weapon)
             {
                 wComponent = weapon.GetComponent<Weapon>();
             }
-           
+
             combatMode = CombatMode.ShootingMode;
 
             if (LifePanel)
@@ -65,6 +71,7 @@ namespace Assets.Scripts.Character
                 LifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
                 _Health = MaxHealth;
             }
+          
 
         }
 
@@ -79,17 +86,11 @@ namespace Assets.Scripts.Character
             {
                 LifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
             }
-
-            if (otherCharacter)
-            {
-                
-            }
         }
 
         //viene chiamato da un evento segnato nell'animazione Gunplay
         void PlayShootSound()
         {
-           
             if (wComponent)
             {
                 wComponent.PlayShootSound();
@@ -101,13 +102,32 @@ namespace Assets.Scripts.Character
         {
             if (_Health <= 0) return;
 
-            if (FillBar)
+            if (fillBar)
             {
-                FillBar.fillAmount -= NormalizedDamage(amount);
+                fillBar.fillAmount -= NormalizedDamage(amount);
             }
             TriggerHitReactionAnimation();
             _Health -= amount;
 
+        }
+        public void SetTensionBar(float tensionAmount)
+        {
+            if (tensionBar)
+            {
+                tension += tensionAmount;
+                tensionBar.fillAmount = Mathf.Clamp(tension, 0, 1);
+             
+                if (timer)
+                {
+                    characterTurnTime = Mathf.Clamp((characterTurnTime -= CalculateTensionTimerPercentage(tensionAmount)), 5, timer.totalTurnTime);
+                }
+            }
+        }
+
+        //la percentuale di tempo sottratta in base alla tensione
+        float CalculateTensionTimerPercentage(float tensionAmount)
+        {
+            return (tensionAmount / timer.GetStandardTurnTime()) * 100f;
         }
 
         //In base alla % di difesa del personaggio 
@@ -129,7 +149,7 @@ namespace Assets.Scripts.Character
             {
                 return;
             }
-          
+
             if (weapon && wComponent && !wComponent.isEmpty())
             {
                 wComponent.Shoot();
@@ -142,7 +162,7 @@ namespace Assets.Scripts.Character
                 Reload();
             }
         }
-        
+
         public void Reload()
         {
             isReloading = true;
@@ -205,16 +225,16 @@ namespace Assets.Scripts.Character
         IEnumerator WaitForEndOfShoot(float delay)
         {
             yield return new WaitForSeconds(delay);
-          
+
             otherCharacter.GetComponent<Character>().TakeDamage(wComponent.damage);
             EventManager<OnAnimationEnd>.Trigger?.Invoke();
-            
+
         }
         IEnumerator WaitForEndOfReloading(float delay)
         {
             yield return new WaitForSeconds(delay);
             isReloading = false;
-            
+
             //Se è enemy attacca nuovamente il player
             if (GetComponent<AIController>())
             {

@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
 {
-    public float totalTurnTime = 10;
+    float turnTime = 10; //la durata standard del turno, non si tocca
+    public float totalTurnTime = 10; //la durata del turno del personaggio
     public float timeRemaining = 10;
 
     public bool isTurnOver;
@@ -18,7 +19,10 @@ public class Timer : MonoBehaviour
         //timerIsRunning = true;
         slider = TurnBar.GetComponent<Slider>();
         if (slider)
+        {
             slider.maxValue = timeRemaining;
+        }
+
     }
 
     void Update()
@@ -37,7 +41,6 @@ public class Timer : MonoBehaviour
                 isTurnOver = true;
                 timeRemaining = totalTurnTime;
                 slider.maxValue = timeRemaining;
-                //timerIsRunning = false;
             }
         }
     }
@@ -51,11 +54,15 @@ public class Timer : MonoBehaviour
         float fraction = Mathf.FloorToInt(timeToDisplay * 100) % 100;
         if (timeText)
         {
-            timeText.text =  string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, fraction);
+            timeText.text = string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, fraction);
         }
-          
-    }
 
+    }
+    public void SetSliderToMax()
+    {
+        if(!slider) { return; }
+        slider.maxValue = totalTurnTime;
+    }
     public void Time2X()
     {
         if (timerIsRunning && !isTurnOver)
@@ -64,7 +71,7 @@ public class Timer : MonoBehaviour
             timeRemaining = totalTurnTime;
             slider.maxValue = timeRemaining;
         }
-            
+
     }
     public void Time_1_2()
     {
@@ -74,10 +81,14 @@ public class Timer : MonoBehaviour
             timeRemaining = totalTurnTime;
             slider.maxValue = timeRemaining;
         }
-            
+
     }
     public void Time_Zero()
     {
         timeRemaining = 0;
+    }
+    public float GetStandardTurnTime()
+    {
+        return turnTime;
     }
 }
