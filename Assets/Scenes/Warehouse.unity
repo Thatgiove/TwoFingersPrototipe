@@ -1134,7 +1134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf396e278072d1f4f99aee2f2900b73b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 1
+  damage: 12
   shootClip: {fileID: 8300000, guid: 3688d7e396a667b4f998d087654001ca, type: 3}
   shootType: 3
   totalAmmo: 100
@@ -1543,23 +1543,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fd0da0a2a15b4942a778d3e7c43764d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinHealth: 0
-  MaxHealth: 56
-  MaxMana: 20
-  _Health: 30
-  fillBar: {fileID: 0}
+  dexterity: 3
+  constitution: 3
+  arcane: 1
+  technology: 4
+  luck: 2
+  mana: 0
+  health: 0
+  maxHealth: 90
   tensionBar: {fileID: 0}
-  LifePanel: {fileID: 513636203}
-  characterTurnTime: 0
-  tension: 0
-  weapon: {fileID: 268277953}
-  HasAttacked: 0
-  Mana: 0
-  PhisicalDefenseValue: 0
-  PhisicalAttackValue: 0
-  otherCharacter: {fileID: 0}
-  _isDead: 0
+  lifePanel: {fileID: 513636203}
   combatMode: 0
+  weapon: {fileID: 268277953}
+  armor: {fileID: 0}
+  otherCharacter: {fileID: 0}
+  isDead: 0
+  tension: 0
+  characterTurnTime: 0
 --- !u!136 &297167795
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4411,8 +4411,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.21979061, y: 0.054139983, z: -0.14082983, w: 0.9638091}
-  m_LocalPosition: {x: 1.5637965, y: 7.3899994, z: -11.469999}
+  m_LocalRotation: {x: 0.22167103, y: 0.04229844, z: -0.13811108, w: 0.9643641}
+  m_LocalPosition: {x: 1.8223002, y: 7.3899994, z: -11.469999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -5649,23 +5649,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8ec7438ad0f1cc46985a5242405b77e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinHealth: 0
-  MaxHealth: 90
-  MaxMana: 0
-  _Health: 0
-  fillBar: {fileID: 1792728683}
+  dexterity: 4
+  constitution: 6
+  arcane: 3
+  technology: 4
+  luck: 5
+  mana: 0
+  health: 0
+  maxHealth: 89
   tensionBar: {fileID: 739496527}
-  LifePanel: {fileID: 1998777037}
-  characterTurnTime: 0
-  tension: 0
-  weapon: {fileID: 1662490650}
-  HasAttacked: 0
-  Mana: 0
-  PhisicalDefenseValue: 0
-  PhisicalAttackValue: 0
-  otherCharacter: {fileID: 0}
-  _isDead: 0
+  lifePanel: {fileID: 1998777037}
   combatMode: 0
+  weapon: {fileID: 1662490650}
+  armor: {fileID: 0}
+  otherCharacter: {fileID: 0}
+  isDead: 0
+  tension: 0
+  characterTurnTime: 0
 --- !u!114 &1345987484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5964,7 +5964,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1203222931}
-  m_PathPosition: 0.08179873
+  m_PathPosition: 0.1117991
   m_PositionUnits: 0
   m_PathOffset: {x: -0.00000030294004, y: 2.4399993, z: 1.9900011}
   m_XDamping: 0
@@ -7027,7 +7027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf396e278072d1f4f99aee2f2900b73b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0.8
+  damage: 7
   shootClip: {fileID: 8300000, guid: ce19d658a6bcae649ae6f55be5eb28da, type: 3}
   shootType: 1
   totalAmmo: 50
@@ -7237,7 +7237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1347191407}
-  m_PathPosition: 0.7071005
+  m_PathPosition: 0.9066335
   m_PositionUnits: 0
   m_PathOffset: {x: 3.71, y: 5.66, z: 0}
   m_XDamping: 0
@@ -7463,17 +7463,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1852576806548013000, guid: f2582d0d955d05f41b446918fa800e7e, type: 3}
   m_PrefabInstance: {fileID: 849426571}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1792728683 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4812602271145921518, guid: 16c9db8a30b273a4e8c98722fc097229, type: 3}
-  m_PrefabInstance: {fileID: 1722544459}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1815163080
 GameObject:
   m_ObjectHideFlags: 0
@@ -7524,7 +7513,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815163080}
-  m_LocalRotation: {x: 0.22518645, y: 0.023024151, z: -0.0053229695, w: 0.97402906}
+  m_LocalRotation: {x: 0.22540055, y: 0.011036144, z: -0.0025534304, w: 0.97420037}
   m_LocalPosition: {x: 0, y: 7.3899994, z: -19.869999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -7743,23 +7732,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8ec7438ad0f1cc46985a5242405b77e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinHealth: 0
-  MaxHealth: 100
-  MaxMana: 0
-  _Health: 0
-  fillBar: {fileID: 0}
+  dexterity: 5
+  constitution: 6
+  arcane: 4
+  technology: 4
+  luck: 3
+  mana: 0
+  health: 0
+  maxHealth: 123
   tensionBar: {fileID: 2072165091}
-  LifePanel: {fileID: 1932985188}
-  characterTurnTime: 0
-  tension: 0
-  weapon: {fileID: 2088265521}
-  HasAttacked: 0
-  Mana: 0
-  PhisicalDefenseValue: 0
-  PhisicalAttackValue: 0
-  otherCharacter: {fileID: 0}
-  _isDead: 0
+  lifePanel: {fileID: 1932985188}
   combatMode: 0
+  weapon: {fileID: 2088265521}
+  armor: {fileID: 0}
+  otherCharacter: {fileID: 0}
+  isDead: 0
+  tension: 0
+  characterTurnTime: 0
 --- !u!4 &1921548394 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1554161176115921225, guid: f9e1a0158e9f7a545a16fa7c2aa7be4e, type: 3}
@@ -8037,7 +8026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1360627619}
-  m_PathPosition: 0.5519753
+  m_PathPosition: 0.8385227
   m_PositionUnits: 0
   m_PathOffset: {x: 0, y: 8, z: 0}
   m_XDamping: 0.87
@@ -8880,7 +8869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf396e278072d1f4f99aee2f2900b73b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0.5
+  damage: 12
   shootClip: {fileID: 8300000, guid: 3688d7e396a667b4f998d087654001ca, type: 3}
   shootType: 3
   totalAmmo: 100

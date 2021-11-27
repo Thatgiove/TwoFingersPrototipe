@@ -16,12 +16,17 @@ public class Weapon : MonoBehaviour
     public AudioClip shootClip;
 
     public ShootType shootType;
-    int ammo = 0;
+   
     [SerializeField] int totalAmmo = 100; //dipende dagli oggetti
     [SerializeField] int magazine = 5; //caricatore
-  
     [SerializeField] Canvas WeaponCanvas;
 
+ 
+    int ammo = 0;
+
+    int positiveModifier = 0; //le armi posso essere incantate o potenziate ed acquisire dei modificatori
+    int negativeModifier = 0;
+ 
     //TODO implementare modalità di fuoco 
     //semiautomatica -> migliora la precisione raffica di 3
     //automicatica svuota tutto il caricatore -- meno precisa 
@@ -103,6 +108,10 @@ public class Weapon : MonoBehaviour
 
         ammo = magazine;
 
+    }
+    public float CalculateFinalWeaponAttack()
+    {
+        return damage + positiveModifier - negativeModifier;
     }
 }
 

@@ -35,6 +35,7 @@ public class CombatGameMode : MonoBehaviour
     //Il personaggio nel campo di battaglia attualmente in turno
     Character CharacterInTheTurn;
     Text _enemyTurnText;
+
     //TODO unificare le code
     Queue<GameObject> TurnQueue = new Queue<GameObject>();
     Queue<GameObject> CharacterQueue = new Queue<GameObject>();
@@ -61,6 +62,7 @@ public class CombatGameMode : MonoBehaviour
         }
 
         CreateTurn();
+
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
         EventManager<OnAnimationEnd>.Register(EndTurn);
     }
@@ -255,6 +257,7 @@ public class CombatGameMode : MonoBehaviour
             {
                 //genera le immagini dei personaggi nel campo di battaglia
                 //e le mette nella coda di turni
+                
                 GameObject imgObject = new GameObject(character.name);
                 //aggiungiamo una classe custom per tipizzare il gameobject
                 imgObject.AddComponent<CharacterIcon>();
@@ -283,6 +286,7 @@ public class CombatGameMode : MonoBehaviour
 
                 //Mette i personaggi nella coda
                 TurnQueue.Enqueue(imgObject);
+
                 //TODO : creare una sola coda
                 CharacterQueue.Enqueue(character);
             }
@@ -353,11 +357,14 @@ public class CombatGameMode : MonoBehaviour
     //TODO - questa logica va spostata nell'AI controller
     void EnemyAttackPlayer()
     {
-        if (timer.timeRemaining <= TimeToAttack)
+     
+        if (timer.timeRemaining <= TimeToAttack  )
         {
+         
             TimeToAttack = 0;
             var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
-            if (enemy.weapon)
+            
+            if (enemy.enabled && enemy.weapon)
             {
                 //TODO -- per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
@@ -366,8 +373,6 @@ public class CombatGameMode : MonoBehaviour
                 var playerSelected = playersList[Random.Range(0, playersList.Count)];
 
                 enemy.otherCharacter = playerSelected.gameObject;
-
-                //playerSelected.TakeDamage(weaponDamage);
                 //TODO - mettere nel character
                 StartCoroutine(enemy.AttackCharacterAtTheEndOfRotation(2f, enemy, playerSelected));
 

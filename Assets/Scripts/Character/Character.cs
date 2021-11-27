@@ -15,36 +15,55 @@ namespace Assets.Scripts.Character
 
     public class Character : MonoBehaviour
     {
-        [SerializeField] float MinHealth;
-        [SerializeField] float MaxHealth;
-        [SerializeField] float MaxMana;
-        [SerializeField] float _Health;
-        [SerializeField] Image fillBar; //TODO - prendere il playerPanel
-        [SerializeField] Image tensionBar; //TODO - prendere il playerPanel
-        [SerializeField] Canvas LifePanel; //TODO - lo prendiamo da qua?
-        Timer timer;
-        public float characterTurnTime;
-
-        //la barra della tensione, ma mano che aumenta il tempo del turno diminuisce
-        public float tension = 0f;
-        //l'ammontare del turno del personaggio: dipende dalla tension
+        /*******************
+         * STATISTICHE:
+         * 
+         * DEXTERITY = la capacità del personaggio di manipolare armi avanzate,
+         * serve anche a calcolare il valore di iniziativa, e il danno causato dalle armi 
+         * 
+         * CONSTITUTION = la capacità del personaggio di resistere ai danni, influenza gli HP
+         * 
+         * ARCANE = la capacità del personaggio di manipolare le forze arcane
+         * 
+         * TECNOLOGY = la capacità del personaggio di manipolare la tecnologia, armi e automi
+         * 
+         * LUCK = bonus generico
+         ****************/
+        [SerializeField] int dexterity; 
+        [SerializeField] int constitution;
+        [SerializeField] int arcane;
+        [SerializeField] int technology;
+        [SerializeField] int luck;
+       
+        [SerializeField] float mana;
+        [SerializeField] float health;
+        [SerializeField] float maxHealth;
         
-        public GameObject weapon;
-        Weapon wComponent;
-        Animator animator;
-        public bool isReloading { get; set; } = false;
-        public bool HasAttacked;
-        public float Health
-        {
-            get { return _Health; }
-        }
-        [SerializeField] float Mana;
-        [SerializeField] float PhisicalDefenseValue;
-        [SerializeField] float PhisicalAttackValue;
-        //può essere sia nemico che player
-        public GameObject otherCharacter;
-        public bool _isDead;
+        //La UI dei personaggi sul campo di battaglia 
+        [SerializeField] Image tensionBar; //TODO - prendere dal playerPanel
+        [SerializeField] Canvas lifePanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
+        
         public CombatMode combatMode;
+        public GameObject weapon;
+        public GameObject armor;     
+        public GameObject otherCharacter;  //può essere sia nemico che player
+       
+        public bool isDead;
+        public float tension = 0f; //la barra della tensione, ma mano che aumenta il tempo del turno diminuisce
+        public float characterTurnTime; //l'ammontare del turno del personaggio: dipende dalla tension
+        public bool isReloading { get; set; } = false;
+
+        float physicalAttackValue;
+        float physicalDefenseValue; //viene calcolato in base al valore dell'arma e dalla destrezza
+        float minHealth;
+
+        float exp;
+        int initiative; //insieme alla destrezza stabilisce i turni nella turnazione
+
+        Timer timer;
+        Weapon weaponComponent;
+        Animator animator;
+
         void Awake()
         {
             timer = FindObjectOfType<Timer>();
@@ -60,16 +79,16 @@ namespace Assets.Scripts.Character
             animator = gameObject.GetComponent<Animator>();
             if (weapon)
             {
-                wComponent = weapon.GetComponent<Weapon>();
+                weaponComponent = weapon.GetComponent<Weapon>();
             }
 
             combatMode = CombatMode.ShootingMode;
 
-            if (LifePanel)
+            if (lifePanel)
             {
                 //TODO --- MMMM
-                LifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = MaxHealth.ToString();
-                _Health = MaxHealth;
+                lifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = maxHealth.ToString();
+                health = maxHealth;
             }
           
 
@@ -77,39 +96,47 @@ namespace Assets.Scripts.Character
 
         void Update()
         {
-            if (_isDead)
+            if (isDead)
             {
-                print("Destroy()");
+                print("DIE");
             }
             //TODO -?
-            if (LifePanel)
+            if (lifePanel)
             {
-                LifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = Health.ToString("0.0");
+                lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
             }
         }
 
         //viene chiamato da un evento segnato nell'animazione Gunplay
         void PlayShootSound()
         {
-            if (wComponent)
+            if (weaponComponent)
             {
-                wComponent.PlayShootSound();
+                weaponComponent.PlayShootSound();
             }
         }
         void UseAbility() { }
 
         public void TakeDamage(float amount)
         {
-            if (_Health <= 0) return;
-
-            if (fillBar)
+            health -= amount;
+            //la fillBar dell'health
+            if (lifePanel)
             {
-                fillBar.fillAmount -= NormalizedDamage(amount);
+                lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount -= NormalizedDamage(amount);
             }
-            TriggerHitReactionAnimation();
-            _Health -= amount;
-
+           
+            
+            if (health <= 0)
+            {
+                Die();
+            }
+            else
+            {
+                TriggerHitReactionAnimation();
+            }
         }
+        //La tensionbar è direttamente proporzionale all'avanzare del turno
         public void SetTensionBar(float tensionAmount)
         {
             if (tensionBar)
@@ -134,13 +161,13 @@ namespace Assets.Scripts.Character
         //determina se posso colpire o se sono in fase di ricarica
         public bool CanHit()
         {
-            return wComponent && !wComponent.isEmpty();
+            return weaponComponent && !weaponComponent.isEmpty();
         }
 
         //Il danno convertito nel range 0 - 1
         float NormalizedDamage(float realDamage)
         {
-            return (realDamage - MinHealth) / (MaxHealth - MinHealth);
+            return (realDamage - minHealth) / (maxHealth - minHealth);
         }
 
         public void Shoot()
@@ -150,14 +177,14 @@ namespace Assets.Scripts.Character
                 return;
             }
 
-            if (weapon && wComponent && !wComponent.isEmpty())
+            if (weapon && weaponComponent && !weaponComponent.isEmpty())
             {
-                wComponent.Shoot();
+                weaponComponent.Shoot();
                 TriggerShootAnimation();
                 StartCoroutine(WaitForEndOfShoot(animator.GetCurrentAnimatorStateInfo(0).speed));
             }
-            //Se è ememy ricarica e attacca
-            else if (weapon && wComponent && wComponent.isEmpty() && GetComponent<AIController>())
+            //TODO -- non va bene così Se è ememy ricarica e attacca
+            else if (weapon && weaponComponent && weaponComponent.isEmpty() && GetComponent<AIController>())
             {
                 Reload();
             }
@@ -166,9 +193,19 @@ namespace Assets.Scripts.Character
         public void Reload()
         {
             isReloading = true;
-            wComponent.Reloading();
+            weaponComponent.Reloading();
             TriggerReloadAnimation();
         }
+
+        void Die()
+        {
+            TriggerDeathAnimation();
+            //TODO - alla morte deve disabilitare il controller, non il Character
+            GetComponent<Character>().enabled = false;
+            GetComponent<CapsuleCollider>().enabled = false;
+        }
+
+        //Animations
         void TriggerShootAnimation()
         {
             if (animator)
@@ -192,7 +229,15 @@ namespace Assets.Scripts.Character
                 StartCoroutine(WaitForEndOfReloading(animator.GetCurrentAnimatorStateInfo(0).speed));
             }
         }
+        void TriggerDeathAnimation()
+        {
+            if (animator)
+            {
+                animator.SetTrigger("Death");
+            }
+        }
 
+        //TODO - Questo va nel controller così alla morte posso disattivarlo
         //I personaggi si girano verso il nemico 
         //e attaccano alla fine della rotazione
         //alla fine dell'animazione dell'attacco 
@@ -218,17 +263,14 @@ namespace Assets.Scripts.Character
             }
 
             shooter.Shoot();
-            //receiver.TakeDamage(shooter.weapon.GetComponent<Weapon>().damage);
-            //StartCoroutine(WaitForEndOfShoot(animator.GetCurrentAnimatorStateInfo(0).speed));
         }
 
         IEnumerator WaitForEndOfShoot(float delay)
         {
             yield return new WaitForSeconds(delay);
 
-            otherCharacter.GetComponent<Character>().TakeDamage(wComponent.damage);
+            otherCharacter.GetComponent<Character>().TakeDamage(CalculatePhysicalAttackValue());
             EventManager<OnAnimationEnd>.Trigger?.Invoke();
-
         }
         IEnumerator WaitForEndOfReloading(float delay)
         {
@@ -240,6 +282,20 @@ namespace Assets.Scripts.Character
             {
                 StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
             }
+        }
+        float CalculatePhysicalAttackValue()
+        {
+
+            if (!weaponComponent)
+            {
+                Debug.LogError("WeaponComponent Not found");
+                return 0;
+            }
+            // Attacco dell'arma che tiene conto dei modificatori
+            return weaponComponent.CalculateFinalWeaponAttack() +
+                 //TODO aggiungere lancio di 2 D10 per calcolare tipo di danno (e se abbiamo un miss o un critical)
+                 //e considerare attributo fortuna
+                 ((1f / 3f) * (float)dexterity);
         }
     }
 }

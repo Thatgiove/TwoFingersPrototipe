@@ -10,6 +10,7 @@ public class CameraManager : MonoBehaviour
     CinemachineStateDrivenCamera stateDrivenCamera;
     CinemachineVirtualCamera cameraSelected;
     Animator animator;
+    GameObject characterInTurn;
     bool dirRight = true;
 
     private void Awake()
@@ -22,9 +23,9 @@ public class CameraManager : MonoBehaviour
     }
     private void LateUpdate()
     {
+        //Movimento dolly avanti e indietro delle camere
         if (cameraSelected)
         {
-
             var dolly = cameraSelected.GetCinemachineComponent<CinemachineTrackedDolly>();
 
             if (!dolly) return;
@@ -48,13 +49,28 @@ public class CameraManager : MonoBehaviour
                 dolly.m_PathPosition -= 0.0001f;
             }
         }
+
+        //Switch tra la camera del player e la camera globale
+        if (Input.GetMouseButtonDown(1))
+        {
+            SetFieldCamera();
+        }
+        if (Input.GetMouseButtonUp(1))
+        {
+            ChangeCameraState(characterInTurn);
+        }
     }
 
-    //TODO da rivere
+    
     void ChangeCameraState(GameObject charInTurn)
     {
-        if (!stateDrivenCamera) return;
+        if (!stateDrivenCamera) { return; };
+        if (!charInTurn) { return;  }
 
+        characterInTurn = charInTurn;
+
+        //TODO rivedere, ad esempio la camera e le animazioni possono
+        //avere lo stesso nome di charInTurn.name
         if (charInTurn.name == "Jennifer")
         {
             cameraSelected = (CinemachineVirtualCamera)stateDrivenCamera.ChildCameras.Where(c => c.name == "JenniferCamera").First();
@@ -63,13 +79,17 @@ public class CameraManager : MonoBehaviour
         else if (charInTurn.name == "SwatGuy")
         {
             cameraSelected = (CinemachineVirtualCamera)stateDrivenCamera.ChildCameras.Where(c => c.name == "SwatGuyCamera").First();
-
             animator.Play("SwatGuyCamera");
         }
         else
         {
-            cameraSelected = (CinemachineVirtualCamera)stateDrivenCamera.ChildCameras.Where(c => c.name == "FieldCamera").First();
-            animator.Play("FieldCamera");
+            SetFieldCamera();
         }
+    }
+
+    void SetFieldCamera()
+    {
+        cameraSelected = (CinemachineVirtualCamera)stateDrivenCamera.ChildCameras.Where(c => c.name == "FieldCamera").First();
+        animator.Play("FieldCamera");
     }
 }
