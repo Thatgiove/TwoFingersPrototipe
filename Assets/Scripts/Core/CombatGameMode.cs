@@ -20,6 +20,9 @@ public class CombatGameMode : MonoBehaviour
     MainCanvas canvas;
     GameObject[] Characters;
 
+    //TODO - cambiare nome e gestire con 'parametro iniziativa'
+    List<GameObject> randomizedList = new List<GameObject>();
+
     //l'interfaccia di comando del Player 
     GameObject[] PlayerPanels;
     GameObject[] LifePanels;
@@ -34,11 +37,16 @@ public class CombatGameMode : MonoBehaviour
     Enemy enemy;
     //Il personaggio nel campo di battaglia attualmente in turno
     Character CharacterInTheTurn;
-    Text _enemyTurnText;
+    Text enemyTurnText;
 
-    //TODO unificare le code
-    Queue<GameObject> TurnQueue = new Queue<GameObject>();
-    Queue<GameObject> CharacterQueue = new Queue<GameObject>();
+    //TODO unificare le code ?
+    List<GameObject> CharactersIconList = new List<GameObject>(); //la lista delle icone dei personaggi
+    Queue<GameObject> CharacterQueue = new Queue<GameObject>(); //TODO - va trasformata in una lista
+
+    //La lista della turnazione si comporta come un coda, ma ci
+    //dà la flessibilità di una lista
+    //List<GameObject> TurnQueue = new List<GameObject>();
+
     float TimeToAttack = 0f; //TODO RIMUOVERE -- stai dando il peggio di te
 
     Quaternion currentPlayerPanelRotation;
@@ -64,31 +72,41 @@ public class CombatGameMode : MonoBehaviour
         CreateTurn();
 
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
-        EventManager<OnAnimationEnd>.Register(EndTurn);
+        EventManager<OnAnimationEnd>.Register(HandleEndOfAnimation);
+        EventManager<OnRemoveCharacterFromIconList>.Register(RemoveCharacterFromIconList);
     }
 
     void Update()
     {
+
         //Alla fine del turno il valore della tensione del player 
         //aumenta e il tempo del suo turno diminuisce
-        if (timer && timer.isTurnOver && CharacterInTheTurn.GetComponent<PlayerController>())
+        if (timer && timer.isTurnOver && CharacterInTheTurn && CharacterInTheTurn.GetComponent<PlayerController>())
         {
             //print(CharacterInTheTurn.gameObject.name + ": turn end");
             CharacterInTheTurn.SetTensionBar(0.05f);
         }
 
-        if (timer && timer.isTurnOver && TurnQueue.Count > 0 && CharacterQueue.Count > 0)
+        if (timer && timer.isTurnOver && CharactersIconList.Count > 0 && CharacterQueue.Count > 0)
         {
 
             CharacterInTheTurn = null;
-
+            
             //distrugge il flag della turnazione precedente
-            Destroy(TurnQueue.Peek().transform.Find("_TurnIcon").gameObject);
-
-            TurnQueue.Dequeue();
+            if (CharactersIconList.Count > 0)
+            {
+                if(CharactersIconList.First())
+                Destroy(CharactersIconList.First().transform.Find("turnIcon").gameObject);
+            }
+          
+            if(CharactersIconList.Count > 0)
+            {
+                CharactersIconList.RemoveAt(0);
+            }
+          
             CharacterQueue.Dequeue();
 
-            if (TurnQueue.Count > 0 && CharacterQueue.Count > 0)
+            if (CharactersIconList.Count > 0 && CharacterQueue.Count > 0)
             {
                 PutIconAtFirstElementOfQueue();
                 HandleCharactersUI();
@@ -225,12 +243,25 @@ public class CombatGameMode : MonoBehaviour
 
         HandleInput();
 
-        GameObject _TurnIcon = new GameObject("_TurnIcon");
-        Image turnIcon = _TurnIcon.AddComponent<Image>();
-        turnIcon.color = Color.red;
-        turnIcon.transform.SetParent(TurnQueue.Peek().transform);
-        turnIcon.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100);
-        turnIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(15, 50);
+        //Crea il rettangolino rosso del turno
+        if (CharactersIconList.Count > 0)
+        {
+            //TODO si tratta di una gestione provvisoria
+            if(CharactersIconList.First()){
+                GameObject _TurnIcon = new GameObject("turnIcon");
+                Image turnIcon = _TurnIcon.AddComponent<Image>();
+                turnIcon.color = Color.red;
+                turnIcon.transform.SetParent(CharactersIconList.First().transform);
+                turnIcon.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -100);
+                turnIcon.GetComponent<RectTransform>().sizeDelta = new Vector2(15, 50);
+            }
+            else
+            {
+                EndTurn();
+            }
+           
+        }
+
     }
 
     // Prendiamo tutti i personaggi sul campo di battaglia
@@ -238,26 +269,35 @@ public class CombatGameMode : MonoBehaviour
     // nella turnazione
     void CreateTurn()
     {
-        float imgOffset = -450f;
+        
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = GameObject.FindObjectOfType<MainCanvas>();
-        _enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>();
-        _enemyTurnText.enabled = false;
+        
+        //TODO - Ci indica l'azione del nemico
+        enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>();
+        enemyTurnText.enabled = false;
 
-        if (Characters == null)
-        {
-            Characters = GameObject.FindGameObjectsWithTag("Character");
-        }
+        //if (Characters == null)
+        //{
+            //var  a = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
+            Characters = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
+        //}
 
-        var randomizedList = Utils.Randomize(Characters.ToList());
+        randomizedList = Utils.Randomize(Characters.ToList());
+        CreateTurnImage();
 
+
+        PutIconAtFirstElementOfQueue();
+    }
+    void CreateTurnImage()
+    {
+        float imgOffset = -450f;
         foreach (GameObject character in randomizedList)
         {
             if (canvas)
             {
                 //genera le immagini dei personaggi nel campo di battaglia
                 //e le mette nella coda di turni
-                
                 GameObject imgObject = new GameObject(character.name);
                 //aggiungiamo una classe custom per tipizzare il gameobject
                 imgObject.AddComponent<CharacterIcon>();
@@ -285,15 +325,15 @@ public class CombatGameMode : MonoBehaviour
                 text.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
 
                 //Mette i personaggi nella coda
-                TurnQueue.Enqueue(imgObject);
+                CharactersIconList.Add(imgObject);
 
                 //TODO : creare una sola coda
                 CharacterQueue.Enqueue(character);
             }
         }
-        PutIconAtFirstElementOfQueue();
     }
 
+    //distrugge tutte le icone
     void DestroyTurn()
     {
         var charactersInGame = GameObject.FindObjectsOfType<CharacterIcon>();
@@ -308,8 +348,8 @@ public class CombatGameMode : MonoBehaviour
     void HandleInput()
     {
         //TODO - rimuovere
-        if (_enemyTurnText)
-            _enemyTurnText.enabled = !isPlayerTurn();
+        if (enemyTurnText)
+            enemyTurnText.enabled = !isPlayerTurn();
 
         if (!isPlayerTurn() && TimeToAttack == 0)
         {
@@ -362,9 +402,10 @@ public class CombatGameMode : MonoBehaviour
         {
          
             TimeToAttack = 0;
-            var playersList = FindObjectsOfType<Character>().Where(ch => !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
+            //TODO - non mi convince !Utils.HasComponent<Enemy>
+            var playersList = FindObjectsOfType<Character>().Where(ch => ch.enabled && !Utils.HasComponent<Enemy>(ch.gameObject)).ToList();
             
-            if (enemy.enabled && enemy.weapon)
+            if (enemy.enabled && enemy.weapon && playersList.Count > 0)
             {
                 //TODO -- per il momento seleziona casualmente il player
                 //costruire un comportamento per cui la personalità del nemico 
@@ -414,7 +455,58 @@ public class CombatGameMode : MonoBehaviour
             EndTurn();
         }
     }
+    void RemoveCharacterFromIconList(GameObject character)
+    {
+        var characterIcon = canvas.transform.Find(character.name);
+        if (characterIcon)
+        {
+            Destroy(characterIcon.gameObject);
+        }
 
+        CharactersIconList.Remove(character);
+        
+        //rimuovo il personaggio dalle liste
+        randomizedList.Remove(character);
+       
+        
+    }
+
+    bool AllPlayersAreDeath()
+    {
+        foreach (var item in randomizedList)
+        {
+            if (item.GetComponent<PlayerController>())
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void GameOver()
+    {
+        var gameOverText = canvas.transform.Find("gameOver");
+        if (gameOverText)
+        {
+            gameOverText.gameObject.SetActive(true);
+        }
+
+        Time.timeScale = 0;
+    }
+    void HandleEndOfAnimation(string animationName)
+    {
+        if(animationName == "DeathAnimation")
+        {
+            if (AllPlayersAreDeath())
+            {
+                GameOver();
+            }
+        }
+        else
+        {
+            EndTurn();
+        }
+    }
     void EndTurn()
     {
         timer.Time_Zero();

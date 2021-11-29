@@ -115,6 +115,12 @@ namespace Assets.Scripts.Character
                 weaponComponent.PlayShootSound();
             }
         }
+        
+        //viene chiamato da un evento segnato alla fine dell'animazione Death
+        void OnDeathAnimationEnd()
+        {
+            EventManager<OnAnimationEnd>.Trigger?.Invoke("DeathAnimation");
+        }
         void UseAbility() { }
 
         public void TakeDamage(float amount)
@@ -200,9 +206,12 @@ namespace Assets.Scripts.Character
         void Die()
         {
             TriggerDeathAnimation();
+            
             //TODO - alla morte deve disabilitare il controller, non il Character
             GetComponent<Character>().enabled = false;
             GetComponent<CapsuleCollider>().enabled = false;
+            
+            EventManager<OnRemoveCharacterFromIconList>.Trigger?.Invoke(gameObject);
         }
 
         //Animations
@@ -265,13 +274,15 @@ namespace Assets.Scripts.Character
             shooter.Shoot();
         }
 
+        //TODO gestire meglio e unificare il più possibile le animazioni
         IEnumerator WaitForEndOfShoot(float delay)
         {
             yield return new WaitForSeconds(delay);
 
             otherCharacter.GetComponent<Character>().TakeDamage(CalculatePhysicalAttackValue());
             EventManager<OnAnimationEnd>.Trigger?.Invoke();
-        }
+        } 
+        
         IEnumerator WaitForEndOfReloading(float delay)
         {
             yield return new WaitForSeconds(delay);
