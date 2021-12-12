@@ -1,9 +1,13 @@
 using Assets.Scripts.Delegates;
 using Assets.Scripts.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
+
 
 namespace Assets.Scripts.Character
 {
@@ -29,6 +33,12 @@ namespace Assets.Scripts.Character
          * 
          * LUCK = bonus generico
          ****************/
+        [Serializable]
+        public class ItemCollection
+        {
+            public int quantity;
+            public Item item;
+        }
         [SerializeField] int dexterity; 
         [SerializeField] int constitution;
         [SerializeField] int arcane;
@@ -42,11 +52,16 @@ namespace Assets.Scripts.Character
         //La UI dei personaggi sul campo di battaglia 
         [SerializeField] Image tensionBar; //TODO - prendere dal playerPanel
         [SerializeField] Canvas lifePanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
+        [SerializeField] Canvas playerPanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
+        
+        [SerializeField] GameObject itemButton;
+        [SerializeField] GameObject characterButton; //I prefab che ci servono per la creazione delle combo oggetti e personaggi
         
         public CombatMode combatMode;
         public GameObject weapon;
         public GameObject armor;     
         public GameObject otherCharacter;  //può essere sia nemico che player
+        public ItemCollection[] inventory;
        
         public bool isDead;
         public float tension = 0f; //la barra della tensione, ma mano che aumenta il tempo del turno diminuisce
@@ -61,18 +76,30 @@ namespace Assets.Scripts.Character
         int initiative; //insieme alla destrezza stabilisce i turni nella turnazione
 
         Timer timer;
+        CombatGameMode combatGameMode;
+
         Weapon weaponComponent;
         Animator animator;
+        Item itemSelected;
+        Character[] charactersInCombatField; //TODO - prendere da combatGameMode?
+
+        Transform itemsButton; //bottone toggle itemsScroll
+        Transform itemsScroll; //il menu degli oggetti nel playerCanvas
+        Transform characterScroll; //il menu dei personaggi selezionabili nel playerCanvas
+
+        string itemDescription = "";
+        bool itemsMenuOpen = false;
 
         void Awake()
         {
             timer = FindObjectOfType<Timer>();
+            combatGameMode = FindObjectOfType<CombatGameMode>();
             if (timer)
             {
                 characterTurnTime = timer.GetStandardTurnTime();
             }
         }
-        // Start is called before the first frame update
+
         void Start()
         {
            
@@ -82,7 +109,7 @@ namespace Assets.Scripts.Character
                 weaponComponent = weapon.GetComponent<Weapon>();
             }
 
-            combatMode = CombatMode.ShootingMode;
+            combatMode = CombatMode.ShootingMode; //TODO?
 
             if (lifePanel)
             {
@@ -90,8 +117,20 @@ namespace Assets.Scripts.Character
                 lifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = maxHealth.ToString();
                 health = maxHealth;
             }
-          
-
+            if (playerPanel)
+            {
+                characterScroll = playerPanel.transform.Find("characterScroll");
+                itemsScroll = playerPanel.transform.Find("itemsScroll");
+                itemsButton = playerPanel.transform.Find("itemsButton");
+               
+                if (itemsButton)
+                {
+                    itemsButton.GetComponent<Button>().onClick.AddListener(toggleItemsMenu);
+                }
+            }
+            //TODO: qui abbiamo codice ripetuto. Trovare un modo per unificare la creazione di bottoni
+            CreateCharactersDropdown();
+            CreateItemsDropdown();
         }
 
         void Update()
@@ -105,6 +144,114 @@ namespace Assets.Scripts.Character
             {
                 lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
             }
+        }
+
+        void CreateItemsDropdown()
+        {
+            if (playerPanel && itemButton)
+            {
+                //TODO - fare meglio
+                var Viewport = itemsScroll.Find("Viewport").Find("Content");
+                
+                if (Viewport && inventory.Length > 0)
+                {
+                    var imgOffset = -12f;
+                    for (int i = 0; i < inventory.Length; i++)
+                    {
+                        GameObject itBtn = Instantiate(itemButton);
+                        itBtn.name = i.ToString();
+
+                        itBtn.transform.SetParent(Viewport.transform);
+                        var trans = itBtn.GetComponent<RectTransform>();
+                        trans.localScale = Vector3.one;
+                        trans.localPosition = new Vector3(0, imgOffset, 0);
+                        imgOffset -= 20;
+                        
+                        var button = itBtn.GetComponent<Button>();
+
+                        var _iText = itBtn.transform.Find("itemText");
+                        if (_iText)
+                        {
+                            _iText.GetComponent<TMP_Text>().text = inventory[i].item.name + "= " + inventory[i].quantity;
+                        }
+                        button.onClick.AddListener(() => SelectItem(itBtn.name));
+
+                        //Il bottone oggetto ha un EventTrigger che ci permette di 
+                        //gestire l'evento del mouse enter e valorizzare il testo 
+                        //per mostrare la descrizione dell'oggetto
+                        var etrigger = itBtn.GetComponent<EventTrigger>();
+                        EventTrigger.Entry entry = new EventTrigger.Entry();
+                        entry.eventID = EventTriggerType.PointerEnter;
+                        entry.callback.AddListener((eventData) => { SetItemDescription(itBtn.name);});
+                        etrigger.triggers.Add(entry);
+                    }
+                }
+            }
+        }
+      
+        void CreateCharactersDropdown()
+        {
+            if (combatGameMode.Characters.Length > 0 && characterButton)
+            {
+                var viewport = characterScroll.Find("Viewport").Find("Content");
+
+                var imgOffset = -12f;
+                for (int i = 0; i < combatGameMode.Characters.Length; i++)
+                {
+                    GameObject itBtn = Instantiate(characterButton);
+                    itBtn.name = i.ToString();
+
+                    itBtn.transform.SetParent(viewport.transform);
+                    var trans = itBtn.GetComponent<RectTransform>();
+                    trans.localScale = Vector3.one;
+                    trans.localPosition = new Vector3(0, imgOffset, 0);
+                    imgOffset -= 20;
+
+                    var button = itBtn.GetComponent<Button>();
+
+                    var _iText = itBtn.transform.Find("itemText");
+                    if (_iText)
+                    {
+                        _iText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
+                    }
+                    button.onClick.AddListener(() => SelectCharacter(itBtn.name));
+                }
+            };
+        }
+        void SelectItem(string itemIndex)
+        {
+            itemSelected = inventory[Int32.Parse(itemIndex)].item;
+            if (combatGameMode)
+            {
+                characterScroll.gameObject.SetActive(itemsMenuOpen);
+            }
+        }
+        void SelectCharacter(string itemIndex)
+        {
+            if (combatGameMode)
+            {
+                var charSel = combatGameMode.Characters[Int32.Parse(itemIndex)].GetComponent<Character>();
+                print("Use: " + itemSelected.name + " to: " + charSel.name);
+                itemSelected = null;
+                itemsMenuOpen = false;
+
+                characterScroll.gameObject.SetActive(itemsMenuOpen); 
+                itemsScroll.gameObject.SetActive(itemsMenuOpen);
+            }
+            
+        }
+
+        void SetItemDescription(string itemIndex)
+        {
+            itemDescription = inventory[Int32.Parse(itemIndex)].item.description;
+            //TODO solo per test fare meglio
+            itemsScroll.Find("itemDescriptionPanel").Find("itemDescriptionText").GetComponent<TMP_Text>().text = itemDescription;
+        }
+
+        void toggleItemsMenu()
+        {
+            itemsMenuOpen = !itemsMenuOpen;
+            itemsScroll.gameObject.SetActive(itemsMenuOpen);
         }
 
         //viene chiamato da un evento segnato nell'animazione Gunplay

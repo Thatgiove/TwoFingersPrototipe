@@ -18,7 +18,7 @@ public class CombatGameMode : MonoBehaviour
     [SerializeField] Transform centerOfField;
 
     MainCanvas canvas;
-    GameObject[] Characters;
+    public GameObject[] Characters;
 
     //TODO - cambiare nome e gestire con 'parametro iniziativa'
     List<GameObject> randomizedList = new List<GameObject>();
@@ -269,24 +269,17 @@ public class CombatGameMode : MonoBehaviour
     // nella turnazione
     void CreateTurn()
     {
-        
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = GameObject.FindObjectOfType<MainCanvas>();
-        
+
         //TODO - Ci indica l'azione del nemico
         enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>();
         enemyTurnText.enabled = false;
 
-        //if (Characters == null)
-        //{
-            //var  a = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
-            Characters = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
-        //}
+        Characters = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
 
         randomizedList = Utils.Randomize(Characters.ToList());
         CreateTurnImage();
-
-
         PutIconAtFirstElementOfQueue();
     }
     void CreateTurnImage()
@@ -455,9 +448,12 @@ public class CombatGameMode : MonoBehaviour
             EndTurn();
         }
     }
+
     void RemoveCharacterFromIconList(GameObject character)
     {
         var characterIcon = canvas.transform.Find(character.name);
+        var a = GetComponent<Button>();
+
         if (characterIcon)
         {
             Destroy(characterIcon.gameObject);
