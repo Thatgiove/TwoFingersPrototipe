@@ -1636,6 +1636,7 @@ MonoBehaviour:
   itemButton: {fileID: 0}
   characterButton: {fileID: 0}
   combatMode: 0
+  alteredStatus: 0
   weapon: {fileID: 268277953}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -2581,6 +2582,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1529317354499994277, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1789600502382128865, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -2939,7 +2944,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.0013646875
+      value: 0.0023816468
       objectReference: {fileID: 0}
     - target: {fileID: 8601814128575132217, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3695,6 +3700,7 @@ MonoBehaviour:
   itemButton: {fileID: 0}
   characterButton: {fileID: 0}
   combatMode: 0
+  alteredStatus: 0
   weapon: {fileID: 1320520074}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -3919,6 +3925,10 @@ PrefabInstance:
     - target: {fileID: 1039384948899427680, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1529317354499994277, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1789600502382128865, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchorMax.x
@@ -4402,7 +4412,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.00058722787
+      value: 0.0007192457
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -4989,8 +4999,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29d60eaacd7f77d479e1c0e82d96cbad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalTurnTime: 10
-  timeRemaining: 10
+  totalTurnTime: 20
+  timeRemaining: 20
   isTurnOver: 0
   TurnBar: {fileID: 117591724}
   timerIsRunning: 1
@@ -5577,8 +5587,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.23230468, y: -0.1296983, z: -0.09903118, w: 0.95885646}
-  m_LocalPosition: {x: 5.661668, y: 7.3899994, z: -11.469999}
+  m_LocalRotation: {x: 0.23053953, y: -0.16919965, z: -0.09094506, w: 0.9539141}
+  m_LocalPosition: {x: 6.634218, y: 7.3899994, z: -11.469999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -7103,6 +7113,7 @@ MonoBehaviour:
   itemButton: {fileID: 0}
   characterButton: {fileID: 0}
   combatMode: 0
+  alteredStatus: 0
   weapon: {fileID: 1662490650}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -7425,7 +7436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1203222931}
-  m_PathPosition: 0.3973815
+  m_PathPosition: 0.4561735
   m_PositionUnits: 0
   m_PathOffset: {x: -0.00000030294004, y: 2.4399993, z: 1.9900011}
   m_XDamping: 0
@@ -8729,7 +8740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1347191407}
-  m_PathPosition: 0.6911954
+  m_PathPosition: 0.9019301
   m_PositionUnits: 0
   m_PathOffset: {x: 3.71, y: 5.66, z: 0}
   m_XDamping: 0
@@ -9005,7 +9016,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815163080}
-  m_LocalRotation: {x: 0.21199338, y: -0.16076666, z: 0.035379637, w: 0.96330744}
+  m_LocalRotation: {x: 0.20474789, y: -0.1996379, z: 0.042699218, w: 0.9572877}
   m_LocalPosition: {x: 0, y: 7.3899994, z: -19.869999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -9238,6 +9249,7 @@ MonoBehaviour:
   itemButton: {fileID: 4442085534015107560, guid: 51781469e5a6cb145a51a8373de63963, type: 3}
   characterButton: {fileID: 4442085534015107560, guid: 5fa9bd86dcad04e4dbde11a835bfcb5f, type: 3}
   combatMode: 0
+  alteredStatus: 0
   weapon: {fileID: 2088265521}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -9246,6 +9258,8 @@ MonoBehaviour:
     item: {fileID: 11400000, guid: 6af38f1eb468fba4db2ef6e2d653b069, type: 2}
   - quantity: 2
     item: {fileID: 11400000, guid: 732981ea0103b2d4db607a83aa088668, type: 2}
+  - quantity: 2
+    item: {fileID: 11400000, guid: f3061edee8f8f5e418ee506c9fc60be7, type: 2}
   isDead: 0
   tension: 0
   characterTurnTime: 0
@@ -9545,7 +9559,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1360627619}
-  m_PathPosition: 0.03289539
+  m_PathPosition: 0.6425896
   m_PositionUnits: 0
   m_PathOffset: {x: 0, y: 8, z: 0}
   m_XDamping: 0.87

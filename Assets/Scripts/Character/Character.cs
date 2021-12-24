@@ -2,7 +2,6 @@ using Assets.Scripts.Delegates;
 using Assets.Scripts.Utils;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +10,23 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.Character
 {
+    //TODO Spostare da qua
+    [Serializable]
+    public class ItemCollection
+    {
+        public int quantity;
+        public Item item;
+    }
+    public enum AlteredStatus
+    {
+        None, 
+        Hacked, //i personaggi non controllano l'attacco -- curato da tech innest
+        Suffering, //la heath bar si riduce progressivamente -- curato da morphine 
+        Cursed, //la mana bar si riduce progressivamente -- curato da sacred oil 
+        Anxiety, //la tension bar aumenta più velocemente -- curato San-Axs 
+        KO,
+        blindness //la % di portare a segno un attacco si riduce drasticamente
+    }
     public enum CombatMode
     {
         ShootingMode = 1,
@@ -33,12 +49,6 @@ namespace Assets.Scripts.Character
          * 
          * LUCK = bonus generico
          ****************/
-        [Serializable]
-        public class ItemCollection
-        {
-            public int quantity;
-            public Item item;
-        }
         [SerializeField] int dexterity; 
         [SerializeField] int constitution;
         [SerializeField] int arcane;
@@ -46,7 +56,7 @@ namespace Assets.Scripts.Character
         [SerializeField] int luck;
        
         [SerializeField] float mana;
-        [SerializeField] float health;
+        public float health;
         [SerializeField] float maxHealth;
         
         //La UI dei personaggi sul campo di battaglia 
@@ -58,6 +68,7 @@ namespace Assets.Scripts.Character
         [SerializeField] GameObject characterButton; //I prefab che ci servono per la creazione delle combo oggetti e personaggi
         
         public CombatMode combatMode;
+        public AlteredStatus alteredStatus;
         public GameObject weapon;
         public GameObject armor;     
         public GameObject otherCharacter;  //può essere sia nemico che player
@@ -143,6 +154,7 @@ namespace Assets.Scripts.Character
             if (lifePanel)
             {
                 lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
+                lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount = NormalizedHealth(health);
             }
         }
 
@@ -214,7 +226,7 @@ namespace Assets.Scripts.Character
                     {
                         _iText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
                     }
-                    button.onClick.AddListener(() => SelectCharacter(itBtn.name));
+                    button.onClick.AddListener(() => UseItemToCharacter(itBtn.name));
                 }
             };
         }
@@ -226,12 +238,14 @@ namespace Assets.Scripts.Character
                 characterScroll.gameObject.SetActive(itemsMenuOpen);
             }
         }
-        void SelectCharacter(string itemIndex)
+        void UseItemToCharacter(string itemIndex)
         {
             if (combatGameMode)
             {
-                var charSel = combatGameMode.Characters[Int32.Parse(itemIndex)].GetComponent<Character>();
-                print("Use: " + itemSelected.name + " to: " + charSel.name);
+                var charSelected = combatGameMode.Characters[Int32.Parse(itemIndex)];
+                
+                itemSelected.Use(charSelected);
+
                 itemSelected = null;
                 itemsMenuOpen = false;
 
@@ -273,13 +287,6 @@ namespace Assets.Scripts.Character
         public void TakeDamage(float amount)
         {
             health -= amount;
-            //la fillBar dell'health
-            if (lifePanel)
-            {
-                lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount -= NormalizedDamage(amount);
-            }
-           
-            
             if (health <= 0)
             {
                 Die();
@@ -317,10 +324,10 @@ namespace Assets.Scripts.Character
             return weaponComponent && !weaponComponent.isEmpty();
         }
 
-        //Il danno convertito nel range 0 - 1
-        float NormalizedDamage(float realDamage)
+        //health normalizzata range 0 - 1
+        float NormalizedHealth(float health)
         {
-            return (realDamage - minHealth) / (maxHealth - minHealth);
+            return (health - minHealth) / (maxHealth - minHealth);
         }
 
         public void Shoot()
