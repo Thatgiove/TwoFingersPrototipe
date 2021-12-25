@@ -1,4 +1,5 @@
 using Assets.Scripts.Delegates;
+using Assets.Scripts.Items;
 using Assets.Scripts.Utils;
 using System;
 using System.Collections;
@@ -15,7 +16,7 @@ namespace Assets.Scripts.Character
     public class ItemCollection
     {
         public int quantity;
-        public Item item;
+        public IItem item;
     }
     public enum AlteredStatus
     {
@@ -91,7 +92,7 @@ namespace Assets.Scripts.Character
 
         Weapon weaponComponent;
         Animator animator;
-        Item itemSelected;
+        IItem itemSelected;
         Character[] charactersInCombatField; //TODO - prendere da combatGameMode?
 
         Transform itemsButton; //bottone toggle itemsScroll

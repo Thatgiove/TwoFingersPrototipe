@@ -1,4 +1,5 @@
 using Assets.Scripts.Character;
+using Assets.Scripts.Items;
 using System;
 using UnityEngine;
 public enum ItemCategory
@@ -11,21 +12,12 @@ public enum ItemType
 }
 [CreateAssetMenu]
 [Serializable]
-public class Item : ScriptableObject
+public class DisposableItem : IItem
 {
-    public int id;
-    public string name;
-    public string description;
+    public float value;  //l'ammontare offensivo o curativo
     public ItemCategory category;
     public ItemType itemType;
-    public float value;  //l'ammontare offensivo o curativo
-
-    public float buyValue;
-    public float sellValue;
-
-    public int priority;
-
-    public void Use(GameObject c)
+    public override void Use(GameObject c)
     {
             var character = c.GetComponent<Character>();
             if (!character) return;
