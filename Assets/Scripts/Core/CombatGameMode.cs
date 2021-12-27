@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Assets.Scripts;
 using Assets.Scripts.Character;
 using Assets.Scripts.Delegates;
 using Assets.Scripts.Utils;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +11,7 @@ using UnityEngine.UI;
  * CombatGameMode gestisce la turnazione
  * durante la fase di combattimento
  */
+//TODO - rendere Singleton
 public class CombatGameMode : MonoBehaviour
 {
     [SerializeField] Timer timer;

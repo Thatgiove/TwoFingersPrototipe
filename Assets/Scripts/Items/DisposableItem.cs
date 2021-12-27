@@ -17,6 +17,7 @@ public class DisposableItem : IItem
     public float value;  //l'ammontare offensivo o curativo
     public ItemCategory category;
     public ItemType itemType;
+    public Animation animation;
     public override void Use(GameObject c)
     {
             var character = c.GetComponent<Character>();

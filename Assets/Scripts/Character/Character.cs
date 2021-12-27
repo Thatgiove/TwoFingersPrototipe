@@ -18,6 +18,11 @@ namespace Assets.Scripts.Character
         public int quantity;
         public IItem item;
     }
+    //Il tipo di azione che sta effettuando il personaggio
+    public enum ActionType
+    {
+        None, Attack, Defense, Item, Skill
+    }
     public enum AlteredStatus
     {
         None, 
@@ -70,6 +75,8 @@ namespace Assets.Scripts.Character
         
         public CombatMode combatMode;
         public AlteredStatus alteredStatus;
+        ActionType actionType;
+
         public GameObject weapon;
         public GameObject armor;     
         public GameObject otherCharacter;  //può essere sia nemico che player
@@ -106,6 +113,7 @@ namespace Assets.Scripts.Character
         {
             timer = FindObjectOfType<Timer>();
             combatGameMode = FindObjectOfType<CombatGameMode>();
+
             if (timer)
             {
                 characterTurnTime = timer.GetStandardTurnTime();
@@ -226,7 +234,18 @@ namespace Assets.Scripts.Character
                     if (_iText)
                     {
                         _iText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
+                        //se è enemy il colore della scritta è rosso
+                        if (combatGameMode.Characters[i].GetComponent<AIController>())
+                        {
+                            _iText.GetComponent<TMP_Text>().color = Color.red;
+                        }
+                        else
+                        {
+                            _iText.GetComponent<TMP_Text>().color = Color.green;
+                        }
+                       
                     }
+                    //TODO deve essere generico per attacco, oggetto e abilità
                     button.onClick.AddListener(() => UseItemToCharacter(itBtn.name));
                 }
             };
@@ -252,6 +271,8 @@ namespace Assets.Scripts.Character
 
                 characterScroll.gameObject.SetActive(itemsMenuOpen); 
                 itemsScroll.gameObject.SetActive(itemsMenuOpen);
+                actionType = ActionType.Item;
+                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, charSelected.GetComponent<Character>()));
             }
             
         }
@@ -269,6 +290,20 @@ namespace Assets.Scripts.Character
             itemsScroll.gameObject.SetActive(itemsMenuOpen);
         }
 
+       
+        
+        //TODO unificare i trigger della fine delle animazioni
+        //alla fine delle animazioni abbiamo impostato un evento che comunica con 
+        //CombatGameMode e causa la fine del turno
+        //viene chiamato da un evento segnato alla fine dell'animazione Death
+        void OnDeathAnimationEnd()
+        {
+            EventManager<OnAnimationEnd>.Trigger?.Invoke("DeathAnimation");
+        }
+        void OnAnimationEnd()
+        {
+            EventManager<OnAnimationEnd>.Trigger?.Invoke();
+        }
         //viene chiamato da un evento segnato nell'animazione Gunplay
         void PlayShootSound()
         {
@@ -276,12 +311,6 @@ namespace Assets.Scripts.Character
             {
                 weaponComponent.PlayShootSound();
             }
-        }
-        
-        //viene chiamato da un evento segnato alla fine dell'animazione Death
-        void OnDeathAnimationEnd()
-        {
-            EventManager<OnAnimationEnd>.Trigger?.Invoke("DeathAnimation");
         }
         void UseAbility() { }
 
@@ -377,6 +406,13 @@ namespace Assets.Scripts.Character
                 animator.SetTrigger("Shoot");
             }
         }
+        void TriggerThrowAnimation()
+        {
+            if (animator)
+            {
+                animator.SetTrigger("throw");
+            }
+        }
         void TriggerHitReactionAnimation()
         {
             if (animator)
@@ -407,9 +443,10 @@ namespace Assets.Scripts.Character
         //alla fine dell'animazione dell'attacco 
         //emette un evento intercettato da combatGameMode
         //che fa passare il turno
-        public IEnumerator AttackCharacterAtTheEndOfRotation(float lerpTime,
+        public IEnumerator AttackCharacterAtTheEndOfRotation(
+            float lerpTime,
             Character shooter,
-            Character receiver)
+            Character receiver) 
         {
             otherCharacter = receiver.gameObject;
 
@@ -417,16 +454,29 @@ namespace Assets.Scripts.Character
 
             while (elapsedTime <= lerpTime)
             {
-                shooter.transform.rotation = Quaternion.Slerp(
-                    shooter.transform.rotation,
-                    Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up),
-                    elapsedTime / lerpTime);
-
+                if(receiver.gameObject.transform.position != shooter.transform.position)
+                {
+                    shooter.transform.rotation = Quaternion.Slerp(
+                                     shooter.transform.rotation,
+                                     Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up),
+                                     elapsedTime / lerpTime);
+                }
+             
                 elapsedTime += (Time.deltaTime * 10f);
                 yield return null;
             }
 
-            shooter.Shoot();
+            //TODO -- la rotazione non avviene solo durante l'attacco , anche se uso oggetti o abilità
+            if(actionType == ActionType.Item)
+            {
+                TriggerThrowAnimation();
+                actionType = ActionType.None;
+            }
+            else
+            {
+                shooter.Shoot();
+            }
+            
         }
 
         //TODO gestire meglio e unificare il più possibile le animazioni
