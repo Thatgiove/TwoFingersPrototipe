@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c315b26cee8dff043b4766112eaf0db3, type: 3}
   m_Name: Granate
   m_EditorClassIdentifier: 
+  id: 0
   name: Granate
   description: '"20.3 fire damage"'
-  category: 0
-  type: 0
-  value: 20.3
+  order: 0
   buyValue: 10
   sellValue: 6
-  priority: 0
+  value: 20.3
+  category: 0
+  itemType: 0
+  animation: hit

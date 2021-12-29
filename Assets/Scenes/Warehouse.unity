@@ -1628,8 +1628,8 @@ MonoBehaviour:
   technology: 4
   luck: 2
   mana: 0
-  health: 0
   maxHealth: 90
+  health: 0
   tensionBar: {fileID: 0}
   lifePanel: {fileID: 513636203}
   playerPanel: {fileID: 0}
@@ -1637,6 +1637,7 @@ MonoBehaviour:
   characterButton: {fileID: 0}
   combatMode: 0
   alteredStatus: 0
+  actionType: 0
   weapon: {fileID: 268277953}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -2944,7 +2945,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.0023816468
+      value: 0.0028090535
+      objectReference: {fileID: 0}
+    - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.0003311774
       objectReference: {fileID: 0}
     - target: {fileID: 8601814128575132217, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -3692,8 +3697,8 @@ MonoBehaviour:
   technology: 4
   luck: 2
   mana: 0
-  health: 0
   maxHealth: 90
+  health: 0
   tensionBar: {fileID: 0}
   lifePanel: {fileID: 1961767842}
   playerPanel: {fileID: 0}
@@ -3701,6 +3706,7 @@ MonoBehaviour:
   characterButton: {fileID: 0}
   combatMode: 0
   alteredStatus: 0
+  actionType: 0
   weapon: {fileID: 1320520074}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -4394,13 +4400,17 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8272784427045137440, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8491027699394281946, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -0.0000009536743
       objectReference: {fileID: 0}
     - target: {fileID: 8514844920767074288, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.99998736
       objectReference: {fileID: 0}
     - target: {fileID: 8514844920767074288, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4412,7 +4422,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.0007192457
+      value: 0.00015848356
       objectReference: {fileID: 0}
     - target: {fileID: 8588589179009551459, guid: c76521db3a0d8d44db05c5bfbc19832c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -5587,8 +5597,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.23327972, y: -0.31188974, z: -0.13528584, w: 0.9110451}
-  m_LocalPosition: {x: 11.568169, y: 7.3899994, z: -11.469999}
+  m_LocalRotation: {x: 0.22486816, y: 0.019397339, z: -0.035231423, w: 0.97355884}
+  m_LocalPosition: {x: 1.8039263, y: 7.3899994, z: -11.469999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -7105,8 +7115,8 @@ MonoBehaviour:
   technology: 4
   luck: 5
   mana: 0
-  health: 0
   maxHealth: 89
+  health: 0
   tensionBar: {fileID: 739496527}
   lifePanel: {fileID: 1998777037}
   playerPanel: {fileID: 356720773}
@@ -7114,6 +7124,7 @@ MonoBehaviour:
   characterButton: {fileID: 0}
   combatMode: 0
   alteredStatus: 0
+  actionType: 0
   weapon: {fileID: 1662490650}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -7436,7 +7447,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1203222931}
-  m_PathPosition: 0.7689125
+  m_PathPosition: 0.1097977
   m_PositionUnits: 0
   m_PathOffset: {x: -0.00000030294004, y: 2.4399993, z: 1.9900011}
   m_XDamping: 0
@@ -8740,7 +8751,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1347191407}
-  m_PathPosition: 0.319387
+  m_PathPosition: 0.2868906
   m_PositionUnits: 0
   m_PathOffset: {x: 3.71, y: 5.66, z: 0}
   m_XDamping: 0
@@ -9016,7 +9027,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815163080}
-  m_LocalRotation: {x: 0.18760279, y: -0.34132072, z: -0.007176252, w: 0.92100704}
+  m_LocalRotation: {x: 0.22537935, y: -0.01208704, z: 0.100604676, w: 0.9689875}
   m_LocalPosition: {x: 0, y: 7.3899994, z: -19.869999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -9241,8 +9252,8 @@ MonoBehaviour:
   technology: 4
   luck: 3
   mana: 0
-  health: 0
   maxHealth: 123
+  health: 0
   tensionBar: {fileID: 2072165091}
   lifePanel: {fileID: 1932985188}
   playerPanel: {fileID: 811114269}
@@ -9250,6 +9261,7 @@ MonoBehaviour:
   characterButton: {fileID: 4442085534015107560, guid: 5fa9bd86dcad04e4dbde11a835bfcb5f, type: 3}
   combatMode: 0
   alteredStatus: 0
+  actionType: 0
   weapon: {fileID: 2088265521}
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
@@ -9258,7 +9270,7 @@ MonoBehaviour:
     item: {fileID: 11400000, guid: 6af38f1eb468fba4db2ef6e2d653b069, type: 2}
   - quantity: 2
     item: {fileID: 11400000, guid: 732981ea0103b2d4db607a83aa088668, type: 2}
-  - quantity: 2
+  - quantity: 1
     item: {fileID: 11400000, guid: f3061edee8f8f5e418ee506c9fc60be7, type: 2}
   - quantity: 2
     item: {fileID: 11400000, guid: 0ccc5f662355c674dacdc3d5bf5af696, type: 2}
@@ -9561,7 +9573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Path: {fileID: 1360627619}
-  m_PathPosition: 0.8286206
+  m_PathPosition: 0.5581759
   m_PositionUnits: 0
   m_PathOffset: {x: 0, y: 8, z: 0}
   m_XDamping: 0.87

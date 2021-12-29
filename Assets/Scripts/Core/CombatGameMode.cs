@@ -78,12 +78,12 @@ public class CombatGameMode : MonoBehaviour
 
     void Update()
     {
-
+        //FINE DEL TURNO
         //Alla fine del turno il valore della tensione del player 
         //aumenta e il tempo del suo turno diminuisce
         if (timer && timer.isTurnOver && CharacterInTheTurn && CharacterInTheTurn.GetComponent<PlayerController>())
         {
-            //print(CharacterInTheTurn.gameObject.name + ": turn end");
+            CharacterInTheTurn.CloseAllScrollMenu();
             CharacterInTheTurn.SetTensionBar(0.05f);
         }
 
@@ -348,7 +348,7 @@ public class CombatGameMode : MonoBehaviour
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
             //TODO creare un sistema di calcolo dell'attacco nemico
-            TimeToAttack = enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
+            TimeToAttack = timer.totalTurnTime - 1f;//enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
 
             if (TimeToAttack >= timer.totalTurnTime)
             {
@@ -491,7 +491,7 @@ public class CombatGameMode : MonoBehaviour
     }
     void HandleEndOfAnimation(string animationName)
     {
-        if(animationName == "DeathAnimation")
+        if(animationName == "death")
         {
             if (AllPlayersAreDeath())
             {

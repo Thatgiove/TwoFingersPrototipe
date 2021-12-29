@@ -11,5 +11,6 @@ namespace Assets.Scripts.Items
         public float buyValue;
         public float sellValue; 
         public abstract void Use(GameObject c);
+        public abstract void TriggerAnimation(GameObject c);
     }
 }

@@ -15,5 +15,9 @@ namespace Assets.Scripts.Items
         {
             Debug.Log(name + " " + description);
         }
+        public override void TriggerAnimation(GameObject c)
+        {
+            Debug.Log(name + " " + description);
+        }
     }
 }

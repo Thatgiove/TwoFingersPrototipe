@@ -61,7 +61,7 @@ ModelImporter:
       events:
       - time: 0.69783616
         functionName: OnAnimationEnd
-        data: 
+        data: throw
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
