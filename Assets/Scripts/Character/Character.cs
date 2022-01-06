@@ -106,6 +106,8 @@ namespace Assets.Scripts.Character
         List<Button> itemsBtnList = new List<Button>();
 
         Transform itemsButton; //bottone toggle itemsScroll
+        Transform attackButton; //il menu dell'attacco nel playerCanvas
+
         Transform itemsScroll; //il menu degli oggetti nel playerCanvas
         Transform characterScroll; //il menu dei personaggi selezionabili nel playerCanvas
 
@@ -113,6 +115,7 @@ namespace Assets.Scripts.Character
        
         bool itemsMenuOpen = false;
         bool skillsMenuOpen = false;
+        bool charactersMenuOpen = false;
 
         void Awake()
         {
@@ -127,7 +130,6 @@ namespace Assets.Scripts.Character
 
         void Start()
         {
-           
             animator = gameObject.GetComponent<Animator>();
             if (weapon)
             {
@@ -146,17 +148,23 @@ namespace Assets.Scripts.Character
             {
                 characterScroll = playerPanel.transform.Find("characterScroll");
                 itemsScroll = playerPanel.transform.Find("itemsScroll");
+
+                /*Eventi per chiudere le combo dei personaggi, oggetti, abilità, ecc... */
+                var characterBtn = characterScroll?.Find("closeButton").GetComponent<Button>();
+                characterBtn?.onClick.AddListener(CloseCharactersDropdown);
+
+                var itemBtn = itemsScroll?.Find("closeButton").GetComponent<Button>();
+                itemBtn?.onClick.AddListener(CloseItemsDropdown);
+
+                attackButton = playerPanel.transform.Find("attackButton");
                 itemsButton = playerPanel.transform.Find("itemsButton");
-               
-                if (itemsButton)
-                {
-                    itemsButton.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
-                }
+                attackButton?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
+                itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
             }
-            //TODO: qui abbiamo codice ripetuto. Trovare un modo per unificare la creazione di bottoni
-           
-            CreateItemsDropdown();
+            //CreateItemsDropdown();
         }
+
+      
 
         void Update()
         {
@@ -174,6 +182,8 @@ namespace Assets.Scripts.Character
 
         void CreateItemsDropdown()
         {
+            print("CreateItemsDropdown");
+
             itemsBtnList = new List<Button>();
             if (playerPanel && itemButton)
             {
@@ -230,9 +240,8 @@ namespace Assets.Scripts.Character
                 }
             }
         }  
-        void CreateCharactersDropdown()
+        void CreateCharactersDropdown(ActionType actionType)
         {
-
             if (combatGameMode.Characters.Length > 0 && characterButton)
             {
                 var viewport = characterScroll.Find("Viewport").Find("Content");
@@ -248,40 +257,43 @@ namespace Assets.Scripts.Character
                 for (int i = 0; i < combatGameMode.Characters.Length; i++)
                 {
                     GameObject itBtn = Instantiate(characterButton);
-
-
                     itBtn.name = i.ToString();
                     itBtn.transform.SetParent(viewport.transform);
                     
-
                     var trans = itBtn.GetComponent<RectTransform>();
                     trans.localScale = Vector3.one;
                     trans.localPosition = new Vector3(50, imgOffset, 0);
                     trans.sizeDelta = new Vector2(100, 24);
                     trans.localRotation = Quaternion.identity;
-   
-                    
+ 
                     imgOffset -= 20;
 
                     var button = itBtn.GetComponent<Button>();
-
-                    var _iText = itBtn.transform.Find("itemText");
-                    if (_iText)
+                    var itemText = itBtn.transform.Find("itemText");
+                    if (itemText)
                     {
-                        _iText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
+                        itemText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
                         //se è enemy il colore della scritta è rosso
                         if (combatGameMode.Characters[i].GetComponent<AIController>())
                         {
-                            _iText.GetComponent<TMP_Text>().color = Color.red;
+                            itemText.GetComponent<TMP_Text>().color = Color.red;
                         }
                         else
                         {
-                            _iText.GetComponent<TMP_Text>().color = Color.green;
+                            itemText.GetComponent<TMP_Text>().color = Color.green;
                         }
                        
                     }
-                    //TODO deve essere generico per attacco, oggetto e abilità
-                    button.onClick.AddListener(() => UseItemToCharacter(itBtn.name));
+                    //In base all'actionType bindo l'evento per attacco, oggetto e abilità
+                    if(actionType == ActionType.Attack)
+                    {
+                        button.onClick.AddListener(() => AttackCharacter(itBtn.name));
+                    }
+                    else if(actionType == ActionType.Item)
+                    {
+                        button.onClick.AddListener(() => UseItemToCharacter(itBtn.name));
+                    }
+                    
                 }
             };
         }
@@ -292,29 +304,43 @@ namespace Assets.Scripts.Character
             
             if (combatGameMode)
             {
-                ToggleItemsButtons(false);
+                ItemsButtonsEnabled(false);
                 characterScroll.gameObject.SetActive(itemsMenuOpen);
-                CreateCharactersDropdown();
+                CreateCharactersDropdown(ActionType.Item);
             }
         }
 
         void ToggleSkillsMenu()
         {
             skillsMenuOpen = !skillsMenuOpen;
-            CloseCharactersComboOnToggle(skillsMenuOpen);
         }
-
+        void ToggleCharacterMenu()
+        {
+            CloseAllScrollMenu();
+            charactersMenuOpen = !charactersMenuOpen;
+            characterScroll.gameObject.SetActive(charactersMenuOpen);
+            if (charactersMenuOpen)
+            {
+                CreateCharactersDropdown(ActionType.Attack);
+            }
+        }
         void ToggleItemsMenu()
         {
+            CloseAllScrollMenu();
             itemsMenuOpen = !itemsMenuOpen;
             itemsScroll.gameObject.SetActive(itemsMenuOpen);
-            CloseCharactersComboOnToggle(itemsMenuOpen);
-            ToggleItemsButtons(true);
+            if (itemsMenuOpen)
+            {
+                ItemsButtonsEnabled(true);
+                CreateItemsDropdown();
+            }
+           
         }
+       
         //quando apriamo il menu dei personaggi dopo aver
         //selezionato l'oggetto è opportuno disattivare 
         //i bottoni degli oggetti 
-        void ToggleItemsButtons(bool isEnabled)
+        void ItemsButtonsEnabled(bool isEnabled)
         {
             foreach (var btn in itemsBtnList)
             {
@@ -332,6 +358,16 @@ namespace Assets.Scripts.Character
                 StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
             }
         }
+        void AttackCharacter(string itemIndex)
+        {
+            if (combatGameMode)
+            {
+                otherCharacter = combatGameMode.Characters[Int32.Parse(itemIndex)];
+                
+                actionType = ActionType.Attack;
+                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
+            }
+        }
         void RemoveItemFromInventory()
         {
             ItemCollection item = inventory[itemIndex];
@@ -344,17 +380,14 @@ namespace Assets.Scripts.Character
             //TODO solo per test fare meglio
             itemsScroll.Find("itemDescriptionPanel").Find("itemDescriptionText").GetComponent<TMP_Text>().text = itemDescription;
         }
-
- 
-
-        //se chiudo i menu delle skill o degli oggetti,
-        //ma quella dei personaggi è ancora aperta allora la chiudo
-        void CloseCharactersComboOnToggle(bool isMenuOpen)
+        void CloseItemsDropdown()
         {
-            if(!isMenuOpen && characterScroll)
-            {
-                characterScroll.gameObject.SetActive(isMenuOpen);
-            }
+            itemsScroll.gameObject.SetActive(false);
+        }
+        void CloseCharactersDropdown()
+        {
+            characterScroll.gameObject.SetActive(false);
+            ItemsButtonsEnabled(true);
         }
 
         //alla fine delle animazioni abbiamo impostato nell'inspector un evento che comunica con 
@@ -381,7 +414,7 @@ namespace Assets.Scripts.Character
 
         public void CloseAllScrollMenu()
         {
-            itemsMenuOpen = false; skillsMenuOpen = false;
+            itemsMenuOpen = false; skillsMenuOpen = false; charactersMenuOpen = false;
             itemsScroll.gameObject.SetActive(false);
             characterScroll.gameObject.SetActive(false);
         }
@@ -551,11 +584,10 @@ namespace Assets.Scripts.Character
             {
                 actionType = ActionType.None;
                 TriggerThrowAnimation();
-                
-     
             }
             else
             {
+                actionType = ActionType.None;
                 shooter.Shoot();
             }
             
@@ -567,9 +599,9 @@ namespace Assets.Scripts.Character
 
             RemoveItemFromInventory();
             itemSelected = null;
-            itemsMenuOpen = false;
+            //itemsMenuOpen = false;
             CloseAllScrollMenu();
-            CreateItemsDropdown();
+            //CreateItemsDropdown();
         }
         //TODO gestire meglio e unificare il più possibile le animazioni
         IEnumerator WaitForEndOfShoot(float delay)
