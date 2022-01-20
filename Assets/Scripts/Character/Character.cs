@@ -56,33 +56,33 @@ namespace Assets.Scripts.Character
          * 
          * LUCK = bonus generico
          ****************/
-        [SerializeField] int dexterity; 
+        [SerializeField] int dexterity;
         [SerializeField] int constitution;
         [SerializeField] int arcane;
         [SerializeField] int technology;
         [SerializeField] int luck;
-       
+
         [SerializeField] float mana;
         [SerializeField] float maxHealth;
         public float health;
-        
-        //La UI dei personaggi sul campo di battaglia 
+
+        //UI dei personaggi sul campo di battaglia 
         [SerializeField] Image tensionBar; //TODO - prendere dal playerPanel
         [SerializeField] Canvas lifePanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
         [SerializeField] Canvas playerPanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
-        
         [SerializeField] GameObject itemButton;
         [SerializeField] GameObject characterButton; //I prefab che ci servono per la creazione delle combo oggetti e personaggi
-        
+        //[SerializeField] GameObject damageText;
+
         public CombatMode combatMode;
         public AlteredStatus alteredStatus;
         public ActionType actionType;
 
         public GameObject weapon;
-        public GameObject armor;     
+        public GameObject armor;
         public GameObject otherCharacter;  //può essere sia nemico che player
         public ItemCollection[] inventory;
-       
+
         public bool isDead;
         public float tension = 0f; //la barra della tensione, ma mano che aumenta il tempo del turno diminuisce
         public float characterTurnTime; //l'ammontare del turno del personaggio: dipende dalla tension
@@ -110,15 +110,17 @@ namespace Assets.Scripts.Character
 
         Transform itemsScroll; //il menu degli oggetti nel playerCanvas
         Transform characterScroll; //il menu dei personaggi selezionabili nel playerCanvas
+        Transform damageUI;
 
         string itemDescription = "";
-       
+
         bool itemsMenuOpen = false;
         bool skillsMenuOpen = false;
         bool charactersMenuOpen = false;
 
         void Awake()
         {
+            //TODO - singleton?
             timer = FindObjectOfType<Timer>();
             combatGameMode = FindObjectOfType<CombatGameMode>();
 
@@ -161,10 +163,16 @@ namespace Assets.Scripts.Character
                 attackButton?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
                 itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
             }
-            //CreateItemsDropdown();
+
+            //prendiamo il gameObject della ui del damage e la ruotiamo in direzione della camera
+            damageUI = gameObject.transform.Find("Damage");
+            if (damageUI)
+            {
+                damageUI.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            }
         }
 
-      
+
 
         void Update()
         {
@@ -182,8 +190,7 @@ namespace Assets.Scripts.Character
 
         void CreateItemsDropdown()
         {
-            print("CreateItemsDropdown");
-
+            //print("CreateItemsDropdown");
             itemsBtnList = new List<Button>();
             if (playerPanel && itemButton)
             {
@@ -200,7 +207,7 @@ namespace Assets.Scripts.Character
 
                 if (inventory.Length > 0)
                 {
-                    
+
                     for (int i = 0; i < inventory.Length; i++)
                     {
                         if (inventory[i].quantity <= 0) continue;
@@ -216,7 +223,7 @@ namespace Assets.Scripts.Character
                         trans.localRotation = Quaternion.identity;
 
                         imgOffset -= 20;
-                        
+
                         var button = itBtn.GetComponent<Button>();
 
                         var _iText = itBtn.transform.Find("itemText");
@@ -232,14 +239,14 @@ namespace Assets.Scripts.Character
                         var etrigger = itBtn.GetComponent<EventTrigger>();
                         EventTrigger.Entry entry = new EventTrigger.Entry();
                         entry.eventID = EventTriggerType.PointerEnter;
-                        entry.callback.AddListener((eventData) => { SetItemDescription(itBtn.name);});
+                        entry.callback.AddListener((eventData) => { SetItemDescription(itBtn.name); });
                         etrigger.triggers.Add(entry);
 
                         itemsBtnList.Add(button);
                     }
                 }
             }
-        }  
+        }
         void CreateCharactersDropdown(ActionType actionType)
         {
             if (combatGameMode.Characters.Length > 0 && characterButton)
@@ -259,13 +266,13 @@ namespace Assets.Scripts.Character
                     GameObject itBtn = Instantiate(characterButton);
                     itBtn.name = i.ToString();
                     itBtn.transform.SetParent(viewport.transform);
-                    
+
                     var trans = itBtn.GetComponent<RectTransform>();
                     trans.localScale = Vector3.one;
                     trans.localPosition = new Vector3(50, imgOffset, 0);
                     trans.sizeDelta = new Vector2(100, 24);
                     trans.localRotation = Quaternion.identity;
- 
+
                     imgOffset -= 20;
 
                     var button = itBtn.GetComponent<Button>();
@@ -282,18 +289,18 @@ namespace Assets.Scripts.Character
                         {
                             itemText.GetComponent<TMP_Text>().color = Color.green;
                         }
-                       
+
                     }
                     //In base all'actionType bindo l'evento per attacco, oggetto e abilità
-                    if(actionType == ActionType.Attack)
+                    if (actionType == ActionType.Attack)
                     {
                         button.onClick.AddListener(() => AttackCharacter(itBtn.name));
                     }
-                    else if(actionType == ActionType.Item)
+                    else if (actionType == ActionType.Item)
                     {
                         button.onClick.AddListener(() => UseItemToCharacter(itBtn.name));
                     }
-                    
+
                 }
             };
         }
@@ -301,7 +308,7 @@ namespace Assets.Scripts.Character
         {
             itemIndex = Int32.Parse(_itemIndex);
             itemSelected = inventory[itemIndex].item;
-            
+
             if (combatGameMode)
             {
                 ItemsButtonsEnabled(false);
@@ -334,9 +341,9 @@ namespace Assets.Scripts.Character
                 ItemsButtonsEnabled(true);
                 CreateItemsDropdown();
             }
-           
+
         }
-       
+
         //quando apriamo il menu dei personaggi dopo aver
         //selezionato l'oggetto è opportuno disattivare 
         //i bottoni degli oggetti 
@@ -353,7 +360,7 @@ namespace Assets.Scripts.Character
             if (combatGameMode)
             {
                 otherCharacter = combatGameMode.Characters[Int32.Parse(itemIndex)];
-                
+
                 actionType = ActionType.Item;
                 StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
             }
@@ -363,7 +370,7 @@ namespace Assets.Scripts.Character
             if (combatGameMode)
             {
                 otherCharacter = combatGameMode.Characters[Int32.Parse(itemIndex)];
-                
+
                 actionType = ActionType.Attack;
                 StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
             }
@@ -395,7 +402,7 @@ namespace Assets.Scripts.Character
         void OnAnimationEnd(string animation = " ")
         {
             //TODO provvisorio
-            if(animation == "throw")
+            if (animation == "throw")
             {
                 ConsumeItem();
             }
@@ -437,7 +444,7 @@ namespace Assets.Scripts.Character
             {
                 tension += tensionAmount;
                 tensionBar.fillAmount = Mathf.Clamp(tension, 0, 1);
-             
+
                 if (timer)
                 {
                     characterTurnTime = Mathf.Clamp((characterTurnTime -= CalculateTensionTimerPercentage(tensionAmount)), 5, timer.totalTurnTime);
@@ -494,11 +501,11 @@ namespace Assets.Scripts.Character
         void Die()
         {
             TriggerDeathAnimation();
-            
+
             //TODO - alla morte deve disabilitare il controller, non il Character
             GetComponent<Character>().enabled = false;
             GetComponent<CapsuleCollider>().enabled = false;
-            
+
             EventManager<OnRemoveCharacterFromIconList>.Trigger?.Invoke(gameObject);
         }
 
@@ -543,7 +550,7 @@ namespace Assets.Scripts.Character
         //TODO - evento chiamato dall'item, non mi convince
         public void TriggerAnimation(string animation)
         {
-            if(animation == "hit")
+            if (animation == "hit")
             {
                 TriggerHitReactionAnimation();
             }
@@ -559,7 +566,7 @@ namespace Assets.Scripts.Character
         public IEnumerator AttackCharacterAtTheEndOfRotation(
             float lerpTime,
             Character shooter,
-            Character receiver) 
+            Character receiver)
         {
             otherCharacter = receiver.gameObject; //TODO assegnazione obsoleta, rimuovere
 
@@ -567,20 +574,20 @@ namespace Assets.Scripts.Character
 
             while (elapsedTime <= lerpTime)
             {
-                if(receiver.gameObject.transform.position != shooter.transform.position)
+                if (receiver.gameObject.transform.position != shooter.transform.position)
                 {
                     shooter.transform.rotation = Quaternion.Slerp(
                                      shooter.transform.rotation,
                                      Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up),
                                      elapsedTime / lerpTime);
                 }
-             
+
                 elapsedTime += (Time.deltaTime * 10f);
                 yield return null;
             }
 
             //TODO -- la rotazione non avviene solo durante l'attacco , anche se uso oggetti o abilità
-            if(actionType == ActionType.Item)
+            if (actionType == ActionType.Item)
             {
                 actionType = ActionType.None;
                 TriggerThrowAnimation();
@@ -590,7 +597,7 @@ namespace Assets.Scripts.Character
                 actionType = ActionType.None;
                 shooter.Shoot();
             }
-            
+
         }
         void ConsumeItem()
         {
@@ -609,9 +616,11 @@ namespace Assets.Scripts.Character
             yield return new WaitForSeconds(delay);
 
             otherCharacter.GetComponent<Character>().TakeDamage(CalculatePhysicalAttackValue());
+           
+            otherCharacter.GetComponent<Character>().DisplayDamageAmount(CalculatePhysicalAttackValue()); //vedere l'ammontare del danno
             EventManager<OnAnimationEnd>.Trigger?.Invoke();
-        } 
-        
+        }
+
         IEnumerator WaitForEndOfReloading(float delay)
         {
             yield return new WaitForSeconds(delay);
@@ -636,6 +645,23 @@ namespace Assets.Scripts.Character
                  //TODO aggiungere lancio di 2 D10 per calcolare tipo di danno (e se abbiamo un miss o un critical)
                  //e considerare attributo fortuna
                  ((1f / 3f) * (float)dexterity);
+        }
+
+        public void DisplayDamageAmount(float damage)
+        {
+            var damageText = damageUI?.GetChild(0).GetChild(0);
+            if (!damageText) return;
+
+            damageUI.gameObject?.SetActive(true);
+            StartCoroutine(HideInterface());
+
+            damageText.GetComponent<TMP_Text>().text = damage.ToString();
+        }
+
+        IEnumerator HideInterface()
+        {
+            yield return new WaitForSeconds(1);
+            damageUI.gameObject?.SetActive(false);
         }
     }
 }
