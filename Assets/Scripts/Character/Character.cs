@@ -39,7 +39,16 @@ namespace Assets.Scripts.Character
         ShootingMode = 1,
         DefenseMode = 2
     }
-
+    public class HitType
+    {
+        public string hitType;
+        public float value;
+        public HitType(string _hitType, float _value)
+        {
+            hitType = _hitType;
+            value = _value;
+        }
+    }
     public class Character : MonoBehaviour
     {
         /*******************
@@ -103,6 +112,8 @@ namespace Assets.Scripts.Character
         Animator animator;
         IItem itemSelected;
         Character[] charactersInCombatField; //TODO - prendere da combatGameMode?
+        PlayerController playerController;
+
         List<Button> itemsBtnList = new List<Button>();
 
         Transform itemsButton; //bottone toggle itemsScroll
@@ -113,6 +124,7 @@ namespace Assets.Scripts.Character
         Transform damageUI;
 
         string itemDescription = "";
+        string hitInfo = "";
 
         bool itemsMenuOpen = false;
         bool skillsMenuOpen = false;
@@ -132,6 +144,7 @@ namespace Assets.Scripts.Character
 
         void Start()
         {
+            playerController = GetComponent<PlayerController>();
             animator = gameObject.GetComponent<Animator>();
             if (weapon)
             {
@@ -164,12 +177,7 @@ namespace Assets.Scripts.Character
                 itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
             }
 
-            //prendiamo il gameObject della ui del damage e la ruotiamo in direzione della camera
             damageUI = gameObject.transform.Find("Damage");
-            if (damageUI)
-            {
-                damageUI.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-            }
         }
 
 
@@ -362,7 +370,7 @@ namespace Assets.Scripts.Character
                 otherCharacter = combatGameMode.Characters[Int32.Parse(itemIndex)];
 
                 actionType = ActionType.Item;
-                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
+                StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Item));
             }
         }
         void AttackCharacter(string itemIndex)
@@ -370,9 +378,8 @@ namespace Assets.Scripts.Character
             if (combatGameMode)
             {
                 otherCharacter = combatGameMode.Characters[Int32.Parse(itemIndex)];
-
                 actionType = ActionType.Attack;
-                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
+                StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Attack));
             }
         }
         void RemoveItemFromInventory()
@@ -432,7 +439,7 @@ namespace Assets.Scripts.Character
             {
                 Die();
             }
-            else
+            else if(amount > 0)
             {
                 TriggerHitReactionAnimation();
             }
@@ -531,7 +538,6 @@ namespace Assets.Scripts.Character
                 animator.SetTrigger("HitReaction");
             }
         }
-
         void TriggerReloadAnimation()
         {
             if (animator)
@@ -554,51 +560,12 @@ namespace Assets.Scripts.Character
             {
                 TriggerHitReactionAnimation();
             }
-        }
-
-        //TODO - Questo va nel controller così alla morte posso disattivarlo
-        //TODO - va reso generico per tutti i tipi di azioni
-        //I personaggi si girano verso il nemico 
-        //e attaccano alla fine della rotazione
-        //alla fine dell'animazione dell'attacco 
-        //emette un evento intercettato da combatGameMode
-        //che fa passare il turno
-        public IEnumerator AttackCharacterAtTheEndOfRotation(
-            float lerpTime,
-            Character shooter,
-            Character receiver)
-        {
-            otherCharacter = receiver.gameObject; //TODO assegnazione obsoleta, rimuovere
-
-            float elapsedTime = 0f;
-
-            while (elapsedTime <= lerpTime)
+            else if(animation == "throw")
             {
-                if (receiver.gameObject.transform.position != shooter.transform.position)
-                {
-                    shooter.transform.rotation = Quaternion.Slerp(
-                                     shooter.transform.rotation,
-                                     Quaternion.LookRotation(receiver.gameObject.transform.position - shooter.transform.position, Vector3.up),
-                                     elapsedTime / lerpTime);
-                }
-
-                elapsedTime += (Time.deltaTime * 10f);
-                yield return null;
-            }
-
-            //TODO -- la rotazione non avviene solo durante l'attacco , anche se uso oggetti o abilità
-            if (actionType == ActionType.Item)
-            {
-                actionType = ActionType.None;
                 TriggerThrowAnimation();
             }
-            else
-            {
-                actionType = ActionType.None;
-                shooter.Shoot();
-            }
-
         }
+
         void ConsumeItem()
         {
             itemSelected.Use(otherCharacter);
@@ -614,10 +581,10 @@ namespace Assets.Scripts.Character
         IEnumerator WaitForEndOfShoot(float delay)
         {
             yield return new WaitForSeconds(delay);
+            var damage = CalculatePhysicalAttackValue();
+            otherCharacter.GetComponent<Character>().TakeDamage(damage);
+            otherCharacter.GetComponent<Character>().DisplayDamageAmount(damage, hitInfo);
 
-            otherCharacter.GetComponent<Character>().TakeDamage(CalculatePhysicalAttackValue());
-           
-            otherCharacter.GetComponent<Character>().DisplayDamageAmount(CalculatePhysicalAttackValue()); //vedere l'ammontare del danno
             EventManager<OnAnimationEnd>.Trigger?.Invoke();
         }
 
@@ -629,39 +596,100 @@ namespace Assets.Scripts.Character
             //Se è enemy attacca nuovamente il player
             if (GetComponent<AIController>())
             {
-                StartCoroutine(AttackCharacterAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>()));
+                StartCoroutine(GetComponent<AIController>().PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(),ActionType.Attack));
             }
         }
+        
         float CalculatePhysicalAttackValue()
         {
+            hitInfo = "";
 
             if (!weaponComponent)
             {
                 Debug.LogError("WeaponComponent Not found");
                 return 0;
             }
+            //TODO considerare attributo fortuna
+            var hitType = CalculateHitPercentage();
+
+            hitInfo = hitType.hitType;
+            if (hitType.hitType == "Miss")
+            {
+                return 0;
+            }
+            
             // Attacco dell'arma che tiene conto dei modificatori
-            return weaponComponent.CalculateFinalWeaponAttack() +
-                 //TODO aggiungere lancio di 2 D10 per calcolare tipo di danno (e se abbiamo un miss o un critical)
-                 //e considerare attributo fortuna
-                 ((1f / 3f) * (float)dexterity);
+            return (weaponComponent.CalculateFinalWeaponAttack() * hitType.value)
+                  + ((1f / 3f) * (float)dexterity);
         }
 
-        public void DisplayDamageAmount(float damage)
+
+
+        public void DisplayDamageAmount(float damage, string attackerHitInfo)
         {
-            var damageText = damageUI?.GetChild(0).GetChild(0);
-            if (!damageText) return;
+            if (damageUI)
+            {
+                var damageText = damageUI?.GetChild(0).GetChild(0);
+                var hitInfo = damageUI?.GetChild(0).GetChild(1);
 
-            damageUI.gameObject?.SetActive(true);
-            StartCoroutine(HideInterface());
+                if (!damageText || !hitInfo) return;
 
-            damageText.GetComponent<TMP_Text>().text = damage.ToString();
+                //ruotiamo in direzione della camera
+                damageUI.gameObject?.SetActive(true);
+                damageUI.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+                damageText.GetComponent<TMP_Text>().text = damage.ToString();
+                hitInfo.GetComponent<TMP_Text>().text = attackerHitInfo;
+                StartCoroutine(HideInterface());
+            }
         }
 
         IEnumerator HideInterface()
         {
             yield return new WaitForSeconds(1);
             damageUI.gameObject?.SetActive(false);
+        }
+
+        HitType CalculateHitPercentage()
+        {
+            //simula lancio di 2d10
+            var t = UnityEngine.Random.Range(0, 10);
+            var u = UnityEngine.Random.Range(0, 10);
+            var result = (t * 10) + u;
+
+            if (result <= 4)
+            {
+                return new HitType("Miss", 0);
+            }
+            else if (result <= 10)
+            {
+                return new HitType("Near miss", .5f);
+            }
+            else if (result >= 96 || result == 0)
+            {
+                return new HitType("Critical Hit", 2f);
+            }
+           
+            else 
+            {
+                if (result >= 31 && result <= 50)
+                {
+                    return new HitType("", 1.1f);
+                }
+                else if (result >= 51 && result <= 85)
+                {
+                    return new HitType("", 1.15f);
+                }
+                else if (result >= 86 && result <= 95)
+                {
+                    return new HitType("Hard Hit", 1.2f);
+                }
+                else
+                {
+                    return new HitType("", 1);
+                }
+             
+            }
+                       
         }
     }
 }

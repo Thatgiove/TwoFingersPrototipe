@@ -1,9 +1,11 @@
 using Assets.Scripts.Character;
+using Assets.Scripts.Controller;
 using Assets.Scripts.Delegates;
 using Assets.Scripts.Utils;
+using System.Collections;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : BaseController
 {
     public bool enableRotation;
     Ray ray;
@@ -41,4 +43,5 @@ public class PlayerController : MonoBehaviour
         }
 
     }
+
 }

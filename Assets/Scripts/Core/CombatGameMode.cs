@@ -2,6 +2,7 @@ using Assets.Scripts;
 using Assets.Scripts.Character;
 using Assets.Scripts.Delegates;
 using Assets.Scripts.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -59,6 +60,8 @@ public class CombatGameMode : MonoBehaviour
         //TODO - get by string?
         PlayerPanels = GameObject.FindGameObjectsWithTag("PlayerPanel");
         LifePanels = GameObject.FindGameObjectsWithTag("LifePanel");
+        //TODO -- qual è il modo migliore per selezionare il canvas?
+        canvas = FindObjectOfType<MainCanvas>();
 
         if (PlayerPanels.Length > 0)
         {
@@ -177,7 +180,7 @@ public class CombatGameMode : MonoBehaviour
                 playerPanel.gameObject.SetActive(true);
                 playerPanel.transform.position = CharacterInTheTurn.transform.position;
                 playerPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-                Vector3 newPlayerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2f, 0);
+                Vector3 newPlayerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2f, -1);
 
                 playerPanel.transform.position += newPlayerPanelPosion;
                 currentPlayerPanelPosition = playerPanel.transform.position;
@@ -269,11 +272,8 @@ public class CombatGameMode : MonoBehaviour
     // nella turnazione
     void CreateTurn()
     {
-        //TODO -- qual è il modo migliore per selezionare il canvas?
-        canvas = GameObject.FindObjectOfType<MainCanvas>();
-
         //TODO - Ci indica l'azione del nemico
-        enemyTurnText = canvas.transform.Find("EnemyTurnText").GetComponent<Text>();
+        enemyTurnText = canvas?.transform.Find("EnemyTurnText").GetComponent<Text>();
         enemyTurnText.enabled = false;
 
         Characters = GameObject.FindGameObjectsWithTag("Character").Where(g => g.GetComponent<Character>().enabled).ToArray();
@@ -340,9 +340,8 @@ public class CombatGameMode : MonoBehaviour
     //TODO - Cambiare nome tipo handle turn
     void HandleInput()
     {
-        //TODO - rimuovere
-        if (enemyTurnText)
-            enemyTurnText.enabled = !isPlayerTurn();
+
+        canvas?.transform.Find("TurnBar").gameObject.SetActive(isPlayerTurn());
 
         if (!isPlayerTurn() && TimeToAttack == 0)
         {
@@ -404,11 +403,11 @@ public class CombatGameMode : MonoBehaviour
                 //costruire un comportamento per cui la personalità del nemico 
                 //selezioni il giocatore da attaccare
                 //var weaponDamage = enemy.weapon.GetComponent<Weapon>().damage;
-                var playerSelected = playersList[Random.Range(0, playersList.Count)];
+                var playerSelected = playersList[UnityEngine.Random.Range(0, playersList.Count)];
 
                 enemy.otherCharacter = playerSelected.gameObject;
                 //TODO - mettere nel character
-                StartCoroutine(enemy.AttackCharacterAtTheEndOfRotation(2f, enemy, playerSelected));
+                StartCoroutine(enemy.GetComponent<AIController>()?.PerformActionAtTheEndOfRotation(2f, enemy, playerSelected, ActionType.Attack));
 
             }
         }
@@ -421,20 +420,20 @@ public class CombatGameMode : MonoBehaviour
 
         CharacterSelected = charSelected;
         //TODO il combat va tolto da qua
-        if (CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
-        {
-            if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
-            {
-                var enemy = CharacterSelected.GetComponent<Enemy>();
-                CharacterInTheTurn.otherCharacter = CharacterSelected;
+        //if (CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
+        //{
+        //    if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
+        //    {
+        //        var enemy = CharacterSelected.GetComponent<Enemy>();
+        //        CharacterInTheTurn.otherCharacter = CharacterSelected;
 
-                if (CharacterInTheTurn.weapon && CharacterInTheTurn.CanHit())
-                {
-                    StartCoroutine(CharacterInTheTurn.AttackCharacterAtTheEndOfRotation(2f, CharacterInTheTurn, enemy));
-                }
+        //        if (CharacterInTheTurn.weapon && CharacterInTheTurn.CanHit())
+        //        {
+        //            StartCoroutine(CharacterInTheTurn.AttackCharacterAtTheEndOfRotation(2f, CharacterInTheTurn, enemy));
+        //        }
 
-            }
-        }
+        //    }
+        //}
     }
     //Chiamato dal pulsante in Character Panel
     public void ChangeCombatMode(int combatMode)
@@ -463,8 +462,6 @@ public class CombatGameMode : MonoBehaviour
         
         //rimuovo il personaggio dalle liste
         randomizedList.Remove(character);
-       
-        
     }
 
     bool AllPlayersAreDeath()
@@ -507,5 +504,4 @@ public class CombatGameMode : MonoBehaviour
     {
         timer.Time_Zero();
     }
-
 }
