@@ -78,9 +78,13 @@ namespace Assets.Scripts.Character
         //UI dei personaggi sul campo di battaglia 
         [SerializeField] Image tensionBar; //TODO - prendere dal playerPanel
         [SerializeField] Canvas lifePanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
-        [SerializeField] Canvas playerPanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
-        [SerializeField] GameObject itemButton;
+        
+        [SerializeField] GameObject ControlPanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
+        
+        [SerializeField] GameObject itemButton; //prefab
         [SerializeField] GameObject characterButton; //I prefab che ci servono per la creazione delle combo oggetti e personaggi
+        public Sprite characterIcon;
+
         //[SerializeField] GameObject damageText;
 
         public CombatMode combatMode;
@@ -159,10 +163,10 @@ namespace Assets.Scripts.Character
                 lifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = maxHealth.ToString();
                 health = maxHealth;
             }
-            if (playerPanel)
+            if (ControlPanel)
             {
-                characterScroll = playerPanel.transform.Find("characterScroll");
-                itemsScroll = playerPanel.transform.Find("itemsScroll");
+                characterScroll = ControlPanel.transform.Find("characterScroll");
+                itemsScroll = ControlPanel.transform.Find("itemsScroll");
 
                 /*Eventi per chiudere le combo dei personaggi, oggetti, abilità, ecc... */
                 var characterBtn = characterScroll?.Find("closeButton").GetComponent<Button>();
@@ -171,10 +175,14 @@ namespace Assets.Scripts.Character
                 var itemBtn = itemsScroll?.Find("closeButton").GetComponent<Button>();
                 itemBtn?.onClick.AddListener(CloseItemsDropdown);
 
-                attackButton = playerPanel.transform.Find("attackButton");
-                itemsButton = playerPanel.transform.Find("itemsButton");
+                var buttonGrid = ControlPanel.transform.Find("buttonsGrid");
+
+                attackButton = ControlPanel.transform.Find("attackButton");
+                itemsButton = buttonGrid?.transform.Find("itemsBtn");
                 attackButton?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
                 itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
+
+
             }
 
             damageUI = gameObject.transform.Find("Damage");
@@ -198,14 +206,13 @@ namespace Assets.Scripts.Character
 
         void CreateItemsDropdown()
         {
-            //print("CreateItemsDropdown");
             itemsBtnList = new List<Button>();
-            if (playerPanel && itemButton)
+            if (ControlPanel && itemButton)
             {
                 //TODO - fare meglio
                 var viewport = itemsScroll.Find("Viewport").Find("Content");
                 if (!viewport) return;
-                var imgOffset = -12f;
+                var imgOffset = -15f;
 
                 //Distrugge tutti i bottoni precedenti
                 foreach (Transform child in viewport)
@@ -226,11 +233,11 @@ namespace Assets.Scripts.Character
                         itBtn.transform.SetParent(viewport.transform);
                         var trans = itBtn.GetComponent<RectTransform>();
                         trans.localScale = Vector3.one;
-                        trans.localPosition = new Vector3(50, imgOffset, 0);
-                        trans.sizeDelta = new Vector2(100, 24);
+                        trans.localPosition = new Vector3(87, imgOffset, 0);
+                        //trans.sizeDelta = new Vector2(162, 44);
                         trans.localRotation = Quaternion.identity;
 
-                        imgOffset -= 20;
+                        imgOffset -= 30;
 
                         var button = itBtn.GetComponent<Button>();
 
@@ -341,6 +348,7 @@ namespace Assets.Scripts.Character
         }
         void ToggleItemsMenu()
         {
+            print("click");
             CloseAllScrollMenu();
             itemsMenuOpen = !itemsMenuOpen;
             itemsScroll.gameObject.SetActive(itemsMenuOpen);
@@ -428,9 +436,9 @@ namespace Assets.Scripts.Character
 
         public void CloseAllScrollMenu()
         {
-            itemsMenuOpen = false; skillsMenuOpen = false; charactersMenuOpen = false;
-            itemsScroll.gameObject.SetActive(false);
-            characterScroll.gameObject.SetActive(false);
+            //itemsMenuOpen = false; skillsMenuOpen = false; charactersMenuOpen = false;
+            //itemsScroll.gameObject.SetActive(false);
+            //characterScroll.gameObject.SetActive(false);
         }
         public void TakeDamage(float amount)
         {

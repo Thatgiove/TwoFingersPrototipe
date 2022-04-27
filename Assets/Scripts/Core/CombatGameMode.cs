@@ -27,6 +27,7 @@ public class CombatGameMode : MonoBehaviour
     //l'interfaccia di comando del Player 
     GameObject[] PlayerPanels;
     GameObject[] LifePanels;
+    GameObject[] AmmoUiPanels;
 
     //l'interfaccia riassuntiva (salute - mana) 
     GameObject LifePanel;
@@ -53,24 +54,26 @@ public class CombatGameMode : MonoBehaviour
     Quaternion currentPlayerPanelRotation;
     Vector3 currentPlayerPanelPosition = Vector3.zero;
 
-
+    public ControlPanel controlPanel; //il canvas di controllo del personaggio
 
     void Start()
     {
         //TODO - get by string?
-        PlayerPanels = GameObject.FindGameObjectsWithTag("PlayerPanel");
+        //PlayerPanels = GameObject.FindGameObjectsWithTag("PlayerPanel");
+
         LifePanels = GameObject.FindGameObjectsWithTag("LifePanel");
+        AmmoUiPanels = GameObject.FindGameObjectsWithTag("AmmoUI");
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = FindObjectOfType<MainCanvas>();
 
-        if (PlayerPanels.Length > 0)
-        {
-            for (int i = 0; i < PlayerPanels.Length; i++)
-            {
-                PlayerPanels[i].SetActive(false);
-            }
+        //if (PlayerPanels != null && PlayerPanels.Length > 0)
+        //{
+        //    for (int i = 0; i < PlayerPanels.Length; i++)
+        //    {
+        //        PlayerPanels[i].SetActive(false);
+        //    }
 
-        }
+        //}
 
         CreateTurn();
 
@@ -149,14 +152,14 @@ public class CombatGameMode : MonoBehaviour
             current.gameObject.SetActive(obj.combatMode == CombatMode.DefenseMode);
         }
         //disattiva tutti i playerPanel
-        foreach (var player in FindObjectsOfType<PlayerController>())
-        {
-            playerPanel = player.transform.Find("PlayerPanel").gameObject;
-            if (playerPanel)
-            {
-                playerPanel.SetActive(false);
-            }
-        }
+        //foreach (var player in FindObjectsOfType<PlayerController>())
+        //{
+        //    playerPanel = player.transform.Find("PlayerPanel").gameObject;
+        //    if (playerPanel)
+        //    {
+        //        playerPanel.SetActive(false);
+        //    }
+        //}
 
         if (isPlayerTurn())
         {
@@ -174,18 +177,18 @@ public class CombatGameMode : MonoBehaviour
                 relativePoint = transform.InverseTransformPoint(centerOfField.position);
             }
 
-            playerPanel = CharacterInTheTurn.transform.Find("PlayerPanel").gameObject;
-            if (playerPanel)
-            {
-                playerPanel.gameObject.SetActive(true);
-                playerPanel.transform.position = CharacterInTheTurn.transform.position;
-                playerPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-                Vector3 newPlayerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2f, -1);
+            //playerPanel = CharacterInTheTurn.transform.Find("PlayerPanel").gameObject;
+            //if (playerPanel)
+            //{
+            //    playerPanel.gameObject.SetActive(true);
+            //    playerPanel.transform.position = CharacterInTheTurn.transform.position;
+            //    playerPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+            //    Vector3 newPlayerPanelPosion = new Vector3(relativePoint.x > CharacterInTheTurn.transform.localPosition.x ? -1.5f : 1.5f, 2f, -1);
 
-                playerPanel.transform.position += newPlayerPanelPosion;
-                currentPlayerPanelPosition = playerPanel.transform.position;
-                currentPlayerPanelRotation = playerPanel.transform.rotation;
-            }
+            //    playerPanel.transform.position += newPlayerPanelPosion;
+            //    currentPlayerPanelPosition = playerPanel.transform.position;
+            //    currentPlayerPanelRotation = playerPanel.transform.rotation;
+            //}
         }
     }
     void LateUpdate()
@@ -199,12 +202,20 @@ public class CombatGameMode : MonoBehaviour
                 LifePanels[i].transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
             }
         }
-        //Il playerPanel non cambia la position e rotation
-        if (isPlayerTurn())
+        //ruota tutti gli ammoUI
+        if (AmmoUiPanels != null && AmmoUiPanels.Length > 0)
         {
-            playerPanel.transform.rotation = Quaternion.Euler(currentPlayerPanelRotation.x, Camera.main.transform.eulerAngles.y, currentPlayerPanelRotation.z);
-            playerPanel.transform.position = currentPlayerPanelPosition;
+            for (int i = 0; i < AmmoUiPanels.Length; i++)
+            {
+                AmmoUiPanels[i].transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
+            }
         }
+        //Il playerPanel non cambia la position e rotation
+        //if (isPlayerTurn())
+        //{
+        //    playerPanel.transform.rotation = Quaternion.Euler(currentPlayerPanelRotation.x, Camera.main.transform.eulerAngles.y, currentPlayerPanelRotation.z);
+        //    playerPanel.transform.position = currentPlayerPanelPosition;
+        //}
 
 
     }
@@ -233,6 +244,9 @@ public class CombatGameMode : MonoBehaviour
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
+        //TODO togliere da qua
+        if (controlPanel)
+            controlPanel.character = CharacterInTheTurn;
         SetCharacterTurnTime();
 
         //emette evento per CameraManager
@@ -302,6 +316,7 @@ public class CombatGameMode : MonoBehaviour
                 trans.sizeDelta = new Vector2(200, 200);
 
                 Image image = imgObject.AddComponent<Image>();
+                image.sprite = character.GetComponent<Character>()?.characterIcon;
                 imgObject.transform.SetParent(canvas.transform);
                 imgOffset += 230;
 

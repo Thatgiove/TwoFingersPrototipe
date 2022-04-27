@@ -42,11 +42,11 @@ public class CameraManager : MonoBehaviour
 
             if (dirRight)
             {
-                dolly.m_PathPosition += 0.0001f;
+                dolly.m_PathPosition += 0.00005f;
             }
             else
             {
-                dolly.m_PathPosition -= 0.0001f;
+                dolly.m_PathPosition -= 0.00005f;
             }
         }
 
@@ -68,6 +68,7 @@ public class CameraManager : MonoBehaviour
         if (!charInTurn) { return;  }
 
         characterInTurn = charInTurn;
+       
 
         //TODO rivedere, ad esempio la camera e le animazioni possono
         //avere lo stesso nome di charInTurn.name

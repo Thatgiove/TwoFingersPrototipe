@@ -8,6 +8,7 @@ TagManager:
   - UI
   - LifePanel
   - PlayerPanel
+  - AmmoUI
   layers:
   - Default
   - TransparentFX
