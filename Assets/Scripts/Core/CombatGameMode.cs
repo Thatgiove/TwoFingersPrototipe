@@ -244,9 +244,14 @@ public class CombatGameMode : MonoBehaviour
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
-        //TODO togliere da qua
+        //TODO togliere da qua - quando è il turno del personaggio binda le azioni 
+        //dei bottoni del v
         if (controlPanel)
+        {
             controlPanel.character = CharacterInTheTurn;
+            controlPanel.SetCharactersBinding(this);
+        }
+            
         SetCharacterTurnTime();
 
         //emette evento per CameraManager
@@ -320,17 +325,17 @@ public class CombatGameMode : MonoBehaviour
                 imgObject.transform.SetParent(canvas.transform);
                 imgOffset += 230;
 
-                GameObject text = new GameObject(character.name);
+                //GameObject text = new GameObject(character.name);
 
-                Text _text = text.AddComponent<Text>();
-                _text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
-                _text.alignment = TextAnchor.MiddleCenter;
-                _text.color = Color.black;
-                _text.text = character.name;
-                _text.fontSize = 22;
-                _text.transform.SetParent(image.transform);
+                //Text _text = text.AddComponent<Text>();
+                //_text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                //_text.alignment = TextAnchor.MiddleCenter;
+                //_text.color = Color.black;
+                //_text.text = character.name;
+                //_text.fontSize = 22;
+                //_text.transform.SetParent(image.transform);
 
-                text.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+                //text.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
 
                 //Mette i personaggi nella coda
                 CharactersIconList.Add(imgObject);
@@ -355,14 +360,16 @@ public class CombatGameMode : MonoBehaviour
     //TODO - Cambiare nome tipo handle turn
     void HandleInput()
     {
-
+        //disattiva i pannelli di controllo e il timer se non è
+        //il turno del player
         canvas?.transform.Find("TurnBar").gameObject.SetActive(isPlayerTurn());
+        canvas?.transform.Find("controlPanel").gameObject.SetActive(isPlayerTurn());
 
         if (!isPlayerTurn() && TimeToAttack == 0)
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
             //TODO creare un sistema di calcolo dell'attacco nemico
-            TimeToAttack = timer.totalTurnTime - 1f;//enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
+            TimeToAttack = timer.totalTurnTime - 2f;//enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
 
             if (TimeToAttack >= timer.totalTurnTime)
             {
@@ -398,14 +405,14 @@ public class CombatGameMode : MonoBehaviour
 
     bool isPlayerTurn()
     {
-        return CharacterInTheTurn && !Utils.HasComponent<Enemy>(CharacterInTheTurn.gameObject);
+        return CharacterInTheTurn && CharacterInTheTurn.GetComponent<PlayerController>() != null;
     }
 
     //TODO - questa logica va spostata nell'AI controller
     void EnemyAttackPlayer()
     {
      
-        if (timer.timeRemaining <= TimeToAttack  )
+        if (timer.timeRemaining < TimeToAttack)
         {
          
             TimeToAttack = 0;
@@ -423,7 +430,6 @@ public class CombatGameMode : MonoBehaviour
                 enemy.otherCharacter = playerSelected.gameObject;
                 //TODO - mettere nel character
                 StartCoroutine(enemy.GetComponent<AIController>()?.PerformActionAtTheEndOfRotation(2f, enemy, playerSelected, ActionType.Attack));
-
             }
         }
 

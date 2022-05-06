@@ -80,9 +80,8 @@ namespace Assets.Scripts.Character
         [SerializeField] Canvas lifePanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
         
         [SerializeField] GameObject ControlPanel; //TODO - lo prendiamo da qua? Teoricamente è figlio del gameObject
-        
-        [SerializeField] GameObject itemButton; //prefab
-        [SerializeField] GameObject characterButton; //I prefab che ci servono per la creazione delle combo oggetti e personaggi
+        [SerializeField] GameObject itemButton; //prefab dei bottoni delle combo personaggi - oggetti
+
         public Sprite characterIcon;
 
         //[SerializeField] GameObject damageText;
@@ -121,10 +120,11 @@ namespace Assets.Scripts.Character
         List<Button> itemsBtnList = new List<Button>();
 
         Transform itemsButton; //bottone toggle itemsScroll
-        Transform attackButton; //il menu dell'attacco nel playerCanvas
+        Transform shotBtn; //il menu dell'attacco nel playerCanvas
+        Transform skillsButton; //il menu dell'attacco nel playerCanvas
 
         Transform itemsScroll; //il menu degli oggetti nel playerCanvas
-        Transform characterScroll; //il menu dei personaggi selezionabili nel playerCanvas
+        Transform charactersScroll; //il menu dei personaggi selezionabili nel playerCanvas
         Transform damageUI;
 
         string itemDescription = "";
@@ -165,22 +165,27 @@ namespace Assets.Scripts.Character
             }
             if (ControlPanel)
             {
-                characterScroll = ControlPanel.transform.Find("characterScroll");
+                charactersScroll = ControlPanel.transform.Find("charactersScroll");
                 itemsScroll = ControlPanel.transform.Find("itemsScroll");
 
                 /*Eventi per chiudere le combo dei personaggi, oggetti, abilità, ecc... */
-                var characterBtn = characterScroll?.Find("closeButton").GetComponent<Button>();
+                var characterBtn = charactersScroll?.Find("closeButton").GetComponent<Button>();
                 characterBtn?.onClick.AddListener(CloseCharactersDropdown);
 
                 var itemBtn = itemsScroll?.Find("closeButton").GetComponent<Button>();
                 itemBtn?.onClick.AddListener(CloseItemsDropdown);
 
+
                 var buttonGrid = ControlPanel.transform.Find("buttonsGrid");
 
-                attackButton = ControlPanel.transform.Find("attackButton");
+                shotBtn = buttonGrid.transform.Find("shotBtn");
                 itemsButton = buttonGrid?.transform.Find("itemsBtn");
-                attackButton?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
+                //skillsButton = buttonGrid?.transform.Find("skillsBtn");
+               
+                //binding delle action
+                shotBtn?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
                 itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
+                //skillsButton?.GetComponent<Button>().onClick.AddListener(printTHIS);
 
 
             }
@@ -188,6 +193,10 @@ namespace Assets.Scripts.Character
             damageUI = gameObject.transform.Find("Damage");
         }
 
+        void printTHIS()
+        {
+            print(this.gameObject.name);
+        }
 
 
         void Update()
@@ -262,11 +271,13 @@ namespace Assets.Scripts.Character
                 }
             }
         }
+
+        //Crea una lista di bottoni con tutti i personaggi
         void CreateCharactersDropdown(ActionType actionType)
         {
-            if (combatGameMode.Characters.Length > 0 && characterButton)
+            if (combatGameMode.Characters.Length > 0 && itemsButton)
             {
-                var viewport = characterScroll.Find("Viewport").Find("Content");
+                var viewport = charactersScroll.Find("Viewport").Find("Content");
                 if (!viewport) return;
                 var imgOffset = -12f;
 
@@ -278,32 +289,32 @@ namespace Assets.Scripts.Character
 
                 for (int i = 0; i < combatGameMode.Characters.Length; i++)
                 {
-                    GameObject itBtn = Instantiate(characterButton);
+                    //Prendo solo i nemici 
+                    if (combatGameMode.Characters[i].GetComponent<AIController>() == null)
+                    {
+                        continue;
+                    }
+
+                    GameObject itBtn = Instantiate(itemButton);
                     itBtn.name = i.ToString();
                     itBtn.transform.SetParent(viewport.transform);
 
                     var trans = itBtn.GetComponent<RectTransform>();
                     trans.localScale = Vector3.one;
-                    trans.localPosition = new Vector3(50, imgOffset, 0);
-                    trans.sizeDelta = new Vector2(100, 24);
+                    trans.localPosition = new Vector3(87, imgOffset, 0);
+                    //trans.sizeDelta = new Vector2(100, 24);
                     trans.localRotation = Quaternion.identity;
 
-                    imgOffset -= 20;
+                    imgOffset -= 30;//lo abbasso sempre di un po'
 
+                    //Imposto il colore il testo dei bottoni 
                     var button = itBtn.GetComponent<Button>();
+                    button.GetComponent<Image>().color = Color.red;
                     var itemText = itBtn.transform.Find("itemText");
                     if (itemText)
                     {
                         itemText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
-                        //se è enemy il colore della scritta è rosso
-                        if (combatGameMode.Characters[i].GetComponent<AIController>())
-                        {
-                            itemText.GetComponent<TMP_Text>().color = Color.red;
-                        }
-                        else
-                        {
-                            itemText.GetComponent<TMP_Text>().color = Color.green;
-                        }
+                        itemText.GetComponent<TMP_Text>().color = Color.black;
 
                     }
                     //In base all'actionType bindo l'evento per attacco, oggetto e abilità
@@ -327,7 +338,7 @@ namespace Assets.Scripts.Character
             if (combatGameMode)
             {
                 ItemsButtonsEnabled(false);
-                characterScroll.gameObject.SetActive(itemsMenuOpen);
+                charactersScroll.gameObject.SetActive(itemsMenuOpen);
                 CreateCharactersDropdown(ActionType.Item);
             }
         }
@@ -340,7 +351,7 @@ namespace Assets.Scripts.Character
         {
             CloseAllScrollMenu();
             charactersMenuOpen = !charactersMenuOpen;
-            characterScroll.gameObject.SetActive(charactersMenuOpen);
+            charactersScroll.gameObject.SetActive(charactersMenuOpen);
             if (charactersMenuOpen)
             {
                 CreateCharactersDropdown(ActionType.Attack);
@@ -381,7 +392,7 @@ namespace Assets.Scripts.Character
                 StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Item));
             }
         }
-        void AttackCharacter(string itemIndex)
+        public void AttackCharacter(string itemIndex)
         {
             if (combatGameMode)
             {
@@ -408,7 +419,7 @@ namespace Assets.Scripts.Character
         }
         void CloseCharactersDropdown()
         {
-            characterScroll.gameObject.SetActive(false);
+            charactersScroll.gameObject.SetActive(false);
             ItemsButtonsEnabled(true);
         }
 
@@ -436,9 +447,9 @@ namespace Assets.Scripts.Character
 
         public void CloseAllScrollMenu()
         {
-            //itemsMenuOpen = false; skillsMenuOpen = false; charactersMenuOpen = false;
-            //itemsScroll.gameObject.SetActive(false);
-            //characterScroll.gameObject.SetActive(false);
+            itemsMenuOpen = false; skillsMenuOpen = false; charactersMenuOpen = false;
+            itemsScroll?.gameObject.SetActive(false);
+            charactersScroll?.gameObject.SetActive(false);
         }
         public void TakeDamage(float amount)
         {
