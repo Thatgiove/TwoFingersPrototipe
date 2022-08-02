@@ -17,6 +17,9 @@ public class CombatGameMode : MonoBehaviour
 {
     [SerializeField] Timer timer;
     [SerializeField] Transform centerOfField;
+    //per il controllo delle transizioni delle telecamere
+    public CameraManager cameraManager;
+
 
     MainCanvas canvas;
     public GameObject[] Characters;
@@ -35,10 +38,10 @@ public class CombatGameMode : MonoBehaviour
     GameObject playerPanel;
 
 
-    public GameObject CharacterSelected;
+    [SerializeField] GameObject CharacterSelected; //solo per debug
     Enemy enemy;
     //Il personaggio nel campo di battaglia attualmente in turno
-    Character CharacterInTheTurn;
+    public Character CharacterInTheTurn;
     Text enemyTurnText;
 
     //TODO unificare le code ?
@@ -54,7 +57,7 @@ public class CombatGameMode : MonoBehaviour
     Quaternion currentPlayerPanelRotation;
     Vector3 currentPlayerPanelPosition = Vector3.zero;
 
-    public ControlPanel controlPanel; //il canvas di controllo del personaggio
+    ControlPanel controlPanel; //il canvas di controllo del personaggio
 
     void Start()
     {
@@ -66,16 +69,10 @@ public class CombatGameMode : MonoBehaviour
         //TODO -- qual è il modo migliore per selezionare il canvas?
         canvas = FindObjectOfType<MainCanvas>();
 
-        //if (PlayerPanels != null && PlayerPanels.Length > 0)
-        //{
-        //    for (int i = 0; i < PlayerPanels.Length; i++)
-        //    {
-        //        PlayerPanels[i].SetActive(false);
-        //    }
-
-        //}
+        controlPanel = FindObjectOfType<ControlPanel>();
 
         CreateTurn();
+
 
         EventManager<OnCharacterSelection>.Register(SelectCharacter);
         EventManager<OnAnimationEnd>.Register(HandleEndOfAnimation);
@@ -87,6 +84,7 @@ public class CombatGameMode : MonoBehaviour
         //FINE DEL TURNO
         //Alla fine del turno il valore della tensione del player 
         //aumenta e il tempo del suo turno diminuisce
+        
         if (timer && timer.isTurnOver && CharacterInTheTurn && CharacterInTheTurn.GetComponent<PlayerController>())
         {
             CharacterInTheTurn.CloseAllScrollMenu();
@@ -240,18 +238,12 @@ public class CombatGameMode : MonoBehaviour
         timer.timeRemaining = timer.totalTurnTime;
         timer.SetSliderToMax();
     }
-
     void PutIconAtFirstElementOfQueue()
     {
         CharacterInTheTurn = CharacterQueue.Peek().GetComponent<Character>();
         //TODO togliere da qua - quando è il turno del personaggio binda le azioni 
         //dei bottoni del v
-        if (controlPanel)
-        {
-            controlPanel.character = CharacterInTheTurn;
-            controlPanel.SetCharactersBinding(this);
-        }
-            
+
         SetCharacterTurnTime();
 
         //emette evento per CameraManager
@@ -265,6 +257,11 @@ public class CombatGameMode : MonoBehaviour
 
         HandleInput();
 
+        if (controlPanel)
+        {
+            controlPanel.character = CharacterInTheTurn;
+            controlPanel.SetPlayerImage();
+        }
         //Crea il rettangolino rosso del turno
         if (CharactersIconList.Count > 0)
         {
@@ -363,19 +360,21 @@ public class CombatGameMode : MonoBehaviour
         //disattiva i pannelli di controllo e il timer se non è
         //il turno del player
         canvas?.transform.Find("TurnBar").gameObject.SetActive(isPlayerTurn());
-        canvas?.transform.Find("controlPanel").gameObject.SetActive(isPlayerTurn());
+
+        controlPanel?.gameObject.SetActive(isPlayerTurn());
 
         if (!isPlayerTurn() && TimeToAttack == 0)
         {
             enemy = CharacterInTheTurn.GetComponent<Enemy>();
             //TODO creare un sistema di calcolo dell'attacco nemico
-            TimeToAttack = timer.totalTurnTime - 2f;//enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
+            //enemy.CalculateAttackTime(timer.totalTurnTime) + timer.totalTurnTime / 2;
+            TimeToAttack = timer.totalTurnTime - .5f;
 
-            if (TimeToAttack >= timer.totalTurnTime)
-            {
-                TimeToAttack = timer.totalTurnTime;
-                TimeToAttack -= 3;
-            }
+            //if (TimeToAttack >= timer.totalTurnTime)
+            //{
+            //    TimeToAttack = timer.totalTurnTime;
+            //    TimeToAttack -= 3;
+            //}
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
@@ -435,27 +434,22 @@ public class CombatGameMode : MonoBehaviour
 
     }
 
+
     void SelectCharacter(GameObject charSelected)
     {
         //Il CharacterSelected può essere anche un alleato 
-
         CharacterSelected = charSelected;
-        //TODO il combat va tolto da qua
-        //if (CharacterInTheTurn.combatMode == CombatMode.ShootingMode)
-        //{
-        //    if (Utils.HasComponent<Enemy>(CharacterSelected.gameObject))
-        //    {
-        //        var enemy = CharacterSelected.GetComponent<Enemy>();
-        //        CharacterInTheTurn.otherCharacter = CharacterSelected;
+ 
+        if (CharacterInTheTurn.GetActionType() == ActionType.Attack)
+        {
+            CharacterInTheTurn.AttackCaracterTemp(charSelected);
+        }
 
-        //        if (CharacterInTheTurn.weapon && CharacterInTheTurn.CanHit())
-        //        {
-        //            StartCoroutine(CharacterInTheTurn.AttackCharacterAtTheEndOfRotation(2f, CharacterInTheTurn, enemy));
-        //        }
-
-        //    }
-        //}
+        //resetto lo stato del personaggio
+        CharacterInTheTurn.ResetActionType();
     }
+
+
     //Chiamato dal pulsante in Character Panel
     public void ChangeCombatMode(int combatMode)
     {

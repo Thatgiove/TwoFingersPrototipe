@@ -28,11 +28,12 @@ public class PlayerController : BaseController
 
         if (Physics.Raycast(ray, out hit))
         {
+            bool isOverUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+           
             //se il cursore passa sul nemico effettuo una rotazione sulla
             //sua position
-            if (Input.GetMouseButtonDown(0) && Utils.HasComponent<Enemy>(hit.transform.gameObject))
+            if (Input.GetMouseButtonDown(0) && hit.transform.gameObject.GetComponent<Character>() && !isOverUI)
             {
-                enemy = hit.transform;
                 EventManager<OnCharacterSelection>.Trigger?.Invoke(hit.transform.gameObject);
             }
         }

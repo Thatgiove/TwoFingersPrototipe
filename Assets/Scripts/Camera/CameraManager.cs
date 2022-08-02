@@ -88,7 +88,7 @@ public class CameraManager : MonoBehaviour
         }
     }
 
-    void SetFieldCamera()
+    public void SetFieldCamera()
     {
         cameraSelected = (CinemachineVirtualCamera)stateDrivenCamera.ChildCameras.Where(c => c.name == "FieldCamera").First();
         animator.Play("FieldCamera");

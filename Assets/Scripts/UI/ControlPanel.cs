@@ -45,6 +45,13 @@ public class ControlPanel : MonoBehaviour
         print(character.gameObject.name);
     }
 
+    public void SetPlayerImage()
+    {
+        var pi = GameObject.Find("playerImage");
+        if (!pi) return;
+        pi.GetComponent<Image>().sprite = character.characterIcon;
+    }
+
     void ToggleCharacterMenu()
     {
         if (combatGameMode.Characters.Length > 0)

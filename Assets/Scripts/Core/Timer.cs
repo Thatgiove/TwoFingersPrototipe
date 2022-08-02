@@ -4,9 +4,9 @@ using UnityEngine.UI;
 //TODO rendere singleton
 public class Timer : MonoBehaviour
 {
-    float turnTime = 20; //la durata standard del turno, non si tocca
-    public float totalTurnTime = 20; //la durata del turno del personaggio
-    public float timeRemaining = 20;
+    float turnTime = 10; //la durata standard del turno, non si tocca
+    public float totalTurnTime = 10; //la durata del turno del personaggio
+    public float timeRemaining = 10;
 
     public bool isTurnOver;
     public GameObject TurnBar;

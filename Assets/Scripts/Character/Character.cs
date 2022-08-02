@@ -401,6 +401,16 @@ namespace Assets.Scripts.Character
                 StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Attack));
             }
         }
+        public void AttackCaracterTemp(GameObject _otherCharacter)
+        {
+            if (combatGameMode)
+            {
+                actionType = ActionType.Attack;
+                otherCharacter = _otherCharacter; //TODO rimuovere
+                StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Attack));
+            }
+        }
+
         void RemoveItemFromInventory()
         {
             ItemCollection item = inventory[itemIndex];
@@ -642,6 +652,19 @@ namespace Assets.Scripts.Character
                   + ((1f / 3f) * (float)dexterity);
         }
 
+        public ActionType GetActionType()
+        {
+            return actionType;
+        } 
+        
+        public void SetActionType(ActionType at)
+        {
+            this.actionType = at;
+        }
+        public void ResetActionType()
+        {
+            this.actionType = ActionType.None;
+        }
 
 
         public void DisplayDamageAmount(float damage, string attackerHitInfo)
