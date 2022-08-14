@@ -12,11 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c315b26cee8dff043b4766112eaf0db3, type: 3}
   m_Name: Potion
   m_EditorClassIdentifier: 
+  id: 0
   name: Potion
+  icon: {fileID: 21300000, guid: e0f89c27f7e46c549804b6cd2a4c1056, type: 3}
   description: '"Restore 9.5 HP"'
-  category: 1
-  type: 0
-  value: 9.5
+  order: 0
   buyValue: 10
   sellValue: 4
-  priority: 0
+  value: 9.5
+  category: 1
+  itemType: 0
+  animation: 

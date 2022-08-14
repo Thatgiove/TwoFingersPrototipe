@@ -113,7 +113,7 @@ namespace Assets.Scripts.Character
 
         Weapon weaponComponent;
         Animator animator;
-        IItem itemSelected;
+        public IItem itemSelected;
         Character[] charactersInCombatField; //TODO - prendere da combatGameMode?
         PlayerController playerController;
 
@@ -411,6 +411,10 @@ namespace Assets.Scripts.Character
             }
         }
 
+        public void UseItem(GameObject _otherCharacter)
+        {
+            print($"Use {itemSelected.name} to  {_otherCharacter.name}");
+        }
         void RemoveItemFromInventory()
         {
             ItemCollection item = inventory[itemIndex];

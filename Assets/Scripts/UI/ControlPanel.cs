@@ -1,4 +1,5 @@
 using Assets.Scripts.Character;
+using Assets.Scripts.Items;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,7 +10,7 @@ public class ControlPanel : MonoBehaviour
 {
 
     public Character character;
-    [SerializeField] GameObject itemButton; //prefab dei bottoni delle combo personaggi - oggetti
+    [SerializeField] GameObject inventory;
     CombatGameMode combatGameMode;
 
     Transform skillsButton; //il menu dell'attacco nel playerCanvas
@@ -18,7 +19,7 @@ public class ControlPanel : MonoBehaviour
 
     void Start()
     {
-
+        combatGameMode = FindObjectOfType<CombatGameMode>();
     }
 
     // Update is called once per frame
@@ -36,7 +37,7 @@ public class ControlPanel : MonoBehaviour
         shotBtn = buttonGrid.transform.Find("shotBtn");
         skillsButton = buttonGrid?.transform.Find("skillsBtn");
 
-        shotBtn?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
+        //shotBtn?.GetComponent<Button>().onClick.AddListener(ToggleCharacterMenu);
         skillsButton?.GetComponent<Button>().onClick.AddListener(printTHIS);
     }
 
@@ -52,54 +53,78 @@ public class ControlPanel : MonoBehaviour
         pi.GetComponent<Image>().sprite = character.characterIcon;
     }
 
-    void ToggleCharacterMenu()
+    public void SetPlayerInventory()
     {
-        if (combatGameMode.Characters.Length > 0)
+        if (!character || !inventory) return;
+
+        var firstObject = inventory.transform.GetChild(0);
+        firstObject.GetComponent<Image>().sprite = character.inventory[0].item.icon;
+        firstObject.GetComponent<Button>().onClick.AddListener(delegate { UseItem(character.inventory[0].item); });
+    }
+
+
+    void UseItem(IItem item)
+    {
+        if (combatGameMode)
         {
-            var viewport = charactersScroll.Find("Viewport").Find("Content");
-            if (!viewport) return;
-            var imgOffset = -12f;
+            
+            //imposto la visuale sul campo di battaglia 
+            combatGameMode.cameraManager?.SetFieldCamera();
 
-            //Distrugge tutti i bottoni precedenti
-            foreach (Transform child in viewport)
-            {
-                GameObject.Destroy(child.gameObject);
-            }
-
-            for (int i = 0; i < combatGameMode.Characters.Length; i++)
-            {
-                //Prendo solo i nemici 
-                if (combatGameMode.Characters[i].GetComponent<AIController>() == null)
-                {
-                    continue;
-                }
-
-                GameObject itBtn = Instantiate(itemButton);
-                itBtn.name = i.ToString();
-                itBtn.transform.SetParent(viewport.transform);
-
-                var trans = itBtn.GetComponent<RectTransform>();
-                trans.localScale = Vector3.one;
-                trans.localPosition = new Vector3(87, imgOffset, 0);
-                //trans.sizeDelta = new Vector2(100, 24);
-                trans.localRotation = Quaternion.identity;
-
-                imgOffset -= 30;//lo abbasso sempre di un po'
-
-                //Imposto il colore il testo dei bottoni 
-                var button = itBtn.GetComponent<Button>();
-                button.GetComponent<Image>().color = Color.red;
-                var itemText = itBtn.transform.Find("itemText");
-                if (itemText)
-                {
-                    itemText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
-                    itemText.GetComponent<TMP_Text>().color = Color.black;
-
-                }
-
-                button.onClick.AddListener(() => character.AttackCharacter(itBtn.name));
-            }
+            combatGameMode.CharacterInTheTurn.itemSelected = item;
+            //setto lo stato del personaggio in modalità attacco
+            //se clicco su un personaggio, PlayerController scatenerà l'evento 
+            //SelectCharacter in CombatGameMode
+            combatGameMode.CharacterInTheTurn.SetActionType(ActionType.Item);
         }
     }
+    //void ToggleCharacterMenu()
+    //{
+    //    if (combatGameMode.Characters.Length > 0)
+    //    {
+    //        var viewport = charactersScroll.Find("Viewport").Find("Content");
+    //        if (!viewport) return;
+    //        var imgOffset = -12f;
+    //        //Distrugge tutti i bottoni precedenti
+    //        foreach (Transform child in viewport)
+    //        {
+    //            GameObject.Destroy(child.gameObject);
+    //        }
+
+    //        for (int i = 0; i < combatGameMode.Characters.Length; i++)
+    //        {
+    //            //Prendo solo i nemici 
+    //            if (combatGameMode.Characters[i].GetComponent<AIController>() == null)
+    //            {
+    //                continue;
+    //            }
+
+    //            //GameObject itBtn = Instantiate(itemButton);
+    //            itBtn.name = i.ToString();
+    //            itBtn.transform.SetParent(viewport.transform);
+
+    //            var trans = itBtn.GetComponent<RectTransform>();
+    //            trans.localScale = Vector3.one;
+    //            trans.localPosition = new Vector3(87, imgOffset, 0);
+    //            //trans.sizeDelta = new Vector2(100, 24);
+    //            trans.localRotation = Quaternion.identity;
+
+    //            imgOffset -= 30;//lo abbasso sempre di un po'
+
+    //            //Imposto il colore il testo dei bottoni 
+    //            var button = itBtn.GetComponent<Button>();
+    //            button.GetComponent<Image>().color = Color.red;
+    //            var itemText = itBtn.transform.Find("itemText");
+    //            if (itemText)
+    //            {
+    //                itemText.GetComponent<TMP_Text>().text = combatGameMode.Characters[i].name;
+    //                itemText.GetComponent<TMP_Text>().color = Color.black;
+
+    //            }
+
+    //            button.onClick.AddListener(() => character.AttackCharacter(itBtn.name));
+    //        }
+    //    }
+    //}
 }
 

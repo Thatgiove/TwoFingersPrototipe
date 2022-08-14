@@ -261,6 +261,7 @@ public class CombatGameMode : MonoBehaviour
         {
             controlPanel.character = CharacterInTheTurn;
             controlPanel.SetPlayerImage();
+            controlPanel.SetPlayerInventory();
         }
         //Crea il rettangolino rosso del turno
         if (CharactersIconList.Count > 0)
@@ -443,6 +444,10 @@ public class CombatGameMode : MonoBehaviour
         if (CharacterInTheTurn.GetActionType() == ActionType.Attack)
         {
             CharacterInTheTurn.AttackCaracterTemp(charSelected);
+        }
+        else if(CharacterInTheTurn.GetActionType() == ActionType.Item)
+        {
+            CharacterInTheTurn.UseItem(charSelected);
         }
 
         //resetto lo stato del personaggio
