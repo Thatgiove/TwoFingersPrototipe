@@ -55,11 +55,16 @@ public class ControlPanel : MonoBehaviour
 
     public void SetPlayerInventory()
     {
-        if (!character || !inventory) return;
+        //TODO Non deve essere chiamata da Enemy 
+        if (!character || !inventory || character.GetComponent<AIController>()) return;
 
         var firstObject = inventory.transform.GetChild(0);
-        firstObject.GetComponent<Image>().sprite = character.inventory[0].item.icon;
-        firstObject.GetComponent<Button>().onClick.AddListener(delegate { UseItem(character.inventory[0].item); });
+        if (firstObject)
+        {
+            firstObject.GetComponent<Image>().sprite = character.inventory[0].item.icon;
+            firstObject.GetComponent<Button>().onClick.AddListener(delegate { UseItem(character.inventory[0].item); });
+        }
+       
     }
 
 
