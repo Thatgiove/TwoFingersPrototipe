@@ -9,21 +9,22 @@ public class Timer : MonoBehaviour
     public float timeRemaining = 10;
 
     public bool isTurnOver;
-    public GameObject TurnBar;
+    public GameObject controlPanel;
     private Slider slider;
 
     public bool timerIsRunning = false;
-    public Text timeText;
+    Text timeText;
 
-    private void Start()
+    void Start()
     {
         //timerIsRunning = true;
-        slider = TurnBar.GetComponent<Slider>();
-        if (slider)
+        var turnBar = controlPanel.transform.GetChild(0);
+        if (turnBar)
         {
+            slider = turnBar.GetComponent<Slider>();
             slider.maxValue = timeRemaining;
+            timeText = turnBar.transform.GetChild(0)?.GetComponent<Text>();
         }
-
     }
 
     void Update()
@@ -53,6 +54,7 @@ public class Timer : MonoBehaviour
         float minutes = Mathf.FloorToInt(timeToDisplay / 60);
         float seconds = Mathf.FloorToInt(timeToDisplay % 60);
         float fraction = Mathf.FloorToInt(timeToDisplay * 100) % 100;
+
         if (timeText)
         {
             timeText.text = string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, fraction);

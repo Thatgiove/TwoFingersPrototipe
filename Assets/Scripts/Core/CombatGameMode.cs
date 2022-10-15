@@ -140,7 +140,7 @@ public class CombatGameMode : MonoBehaviour
             LifePanel = obj.transform.Find("LifePanel").gameObject;
             if (LifePanel)
             {
-                LifePanel.SetActive(true);
+                LifePanel.SetActive(false);
             }
 
             //controlla se il character è in defense mode
@@ -165,7 +165,7 @@ public class CombatGameMode : MonoBehaviour
             var lifePanel = CharacterInTheTurn.transform.Find("LifePanel");
             if (lifePanel)
             {
-                lifePanel.gameObject.SetActive(false);
+                lifePanel.gameObject.SetActive(true);
             }
 
             var relativePoint = Vector3.zero;
@@ -360,8 +360,7 @@ public class CombatGameMode : MonoBehaviour
     {
         //disattiva i pannelli di controllo e il timer se non è
         //il turno del player
-        canvas?.transform.Find("TurnBar").gameObject.SetActive(isPlayerTurn());
-
+ 
         controlPanel?.gameObject.SetActive(isPlayerTurn());
 
         if (!isPlayerTurn() && TimeToAttack == 0)
