@@ -37,7 +37,8 @@ namespace Assets.Scripts.Character
     public enum CombatMode
     {
         ShootingMode = 1,
-        DefenseMode = 2
+        DefenseMode = 2,
+        AimMode = 3
     }
     public class HitType
     {
@@ -409,6 +410,16 @@ namespace Assets.Scripts.Character
                 otherCharacter = _otherCharacter; //TODO rimuovere
                 StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Attack));
             }
+        } 
+        
+        public void AttackCaracterContinuous(GameObject _otherCharacter)
+        {
+            if (combatGameMode)
+            {
+                actionType = ActionType.Attack;
+                otherCharacter = _otherCharacter; //TODO rimuovere
+                StartCoroutine(playerController?.PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(), ActionType.Attack));
+            }
         }
 
         public void UseItem(GameObject _otherCharacter)
@@ -531,11 +542,33 @@ namespace Assets.Scripts.Character
             }
         }
 
+        public void ActiveShoot(GameObject other)
+        {
+            var enemy = other.GetComponent<Character>();
+
+            if (isReloading)
+            {
+                return;
+            }
+
+            if (weapon && weaponComponent && !weaponComponent.isEmpty())
+            {
+                weaponComponent.Shoot();
+                TriggerShootAnimation();
+                var damage = CalculatePhysicalAttackValue();
+                enemy.TakeDamage(damage);
+                enemy.DisplayDamageAmount(damage, hitInfo);
+                timer.SubtractTime(weaponComponent.timeCost);
+            }
+        }
+
+
         public void Reload()
         {
             isReloading = true;
             weaponComponent.Reloading();
             TriggerReloadAnimation();
+            timer.SubtractTime(10f);
         }
 
         void Die()
@@ -617,8 +650,8 @@ namespace Assets.Scripts.Character
             var damage = CalculatePhysicalAttackValue();
             otherCharacter.GetComponent<Character>().TakeDamage(damage);
             otherCharacter.GetComponent<Character>().DisplayDamageAmount(damage, hitInfo);
-
-            EventManager<OnAnimationEnd>.Trigger?.Invoke();
+            timer.Time_Zero();
+            //EventManager<OnAnimationEnd>.Trigger?.Invoke();
         }
 
         IEnumerator WaitForEndOfReloading(float delay)
@@ -627,10 +660,10 @@ namespace Assets.Scripts.Character
             isReloading = false;
 
             //Se è enemy attacca nuovamente il player
-            if (GetComponent<AIController>())
-            {
-                StartCoroutine(GetComponent<AIController>().PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(),ActionType.Attack));
-            }
+            //if (GetComponent<AIController>())
+            //{
+            //    StartCoroutine(GetComponent<AIController>().PerformActionAtTheEndOfRotation(2f, this, otherCharacter.GetComponent<Character>(),ActionType.Attack));
+            //}
         }
         
         float CalculatePhysicalAttackValue()
@@ -670,7 +703,10 @@ namespace Assets.Scripts.Character
             this.actionType = ActionType.None;
         }
 
-
+        public void SetCombatMode(CombatMode cm)
+        {
+            combatMode = cm;
+        }
         public void DisplayDamageAmount(float damage, string attackerHitInfo)
         {
             if (damageUI)
@@ -683,7 +719,7 @@ namespace Assets.Scripts.Character
                 //ruotiamo in direzione della camera
                 damageUI.gameObject?.SetActive(true);
                 damageUI.transform.rotation = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0);
-                damageText.GetComponent<TMP_Text>().text = damage.ToString();
+                damageText.GetComponent<TMP_Text>().text = Math.Round(damage, 2).ToString();
                 hitInfo.GetComponent<TMP_Text>().text = attackerHitInfo;
                 StartCoroutine(HideInterface());
             }
@@ -691,7 +727,7 @@ namespace Assets.Scripts.Character
 
         IEnumerator HideInterface()
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(2);
             damageUI.gameObject?.SetActive(false);
         }
 

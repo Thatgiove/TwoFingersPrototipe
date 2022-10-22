@@ -21,7 +21,7 @@ namespace Assets.Scripts.Controller
             ActionType actionType
             )
         {
-           
+
             float elapsedTime = 0f;
 
             while (elapsedTime <= lerpTime)
@@ -51,5 +51,24 @@ namespace Assets.Scripts.Controller
             }
 
         }
+
+        protected void RotateToCharacter(float lerpTime, GameObject me, GameObject other)
+        {
+            float elapsedTime = 0f;
+            while (elapsedTime <= lerpTime)
+            {
+                if (other.gameObject.transform.position != me.transform.position)
+                {
+                    me.transform.rotation = Quaternion.Slerp(
+                                     me.transform.rotation,
+                                     Quaternion.LookRotation(other.gameObject.transform.position - me.transform.position, Vector3.up),
+                                     elapsedTime / lerpTime);
+                }
+
+                elapsedTime += (Time.deltaTime * 10f);
+            }
+        }
+
+
     }
 }

@@ -519,7 +519,7 @@ public class CombatGameMode : MonoBehaviour
             EndTurn();
         }
     }
-    void EndTurn()
+    public void EndTurn()
     {
         timer.Time_Zero();
     }

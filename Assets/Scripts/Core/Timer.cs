@@ -63,7 +63,7 @@ public class Timer : MonoBehaviour
     }
     public void SetSliderToMax()
     {
-        if(!slider) { return; }
+        if (!slider) { return; }
         slider.maxValue = totalTurnTime;
     }
     public void Time2X()
@@ -93,5 +93,10 @@ public class Timer : MonoBehaviour
     public float GetStandardTurnTime()
     {
         return turnTime;
+    }
+
+    public void SubtractTime(float amount)
+    {
+        timeRemaining -= amount;
     }
 }

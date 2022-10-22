@@ -19,6 +19,7 @@ public class Weapon : MonoBehaviour
    
     [SerializeField] int totalAmmo = 100; //dipende dagli oggetti
     [SerializeField] int magazine = 5; //caricatore
+    public float timeCost = 1; //tempo da sottrarre al timer
     [SerializeField] Canvas WeaponCanvas;
 
  
@@ -61,6 +62,7 @@ public class Weapon : MonoBehaviour
                 ammo = Mathf.Clamp(ammo -= 3, 0, magazine);
                 break;
             case ShootType.Automatic:
+                ammo = Mathf.Clamp(ammo -= 1, 0, magazine);
                 break;
             default:
                 ammo = Mathf.Clamp(ammo -= 1, 0, magazine);
