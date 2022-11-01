@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c315b26cee8dff043b4766112eaf0db3, type: 3}
-  m_Name: Granate
+  m_Name: Medikit
   m_EditorClassIdentifier: 
   id: 0
-  name: Granate
-  icon: {fileID: 21300000, guid: 24505e78006f9ea4baaf283ba4af9260, type: 3}
-  description: '"20.3 fire damage"'
+  name: Medikit
+  icon: {fileID: 21300000, guid: a514d758e0d3aa840b06382e4f4ef484, type: 3}
+  description: '"Restore 10 HP"'
   order: 0
   buyValue: 10
-  sellValue: 6
-  timeCost: 7
-  value: 20.3
-  category: 0
+  sellValue: 4
+  timeCost: 6
+  value: 10
+  category: 1
   itemType: 0
-  animation: hit
+  animation: 

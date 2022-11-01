@@ -8,7 +8,7 @@ public enum ItemCategory
 }
 public enum ItemType
 {
-    health, shield, mana, tension, attack, defense
+    health, shield, mana, tension, attack, defense, time
 }
 [CreateAssetMenu]
 [Serializable]
@@ -18,6 +18,9 @@ public class DisposableItem : IItem
     public ItemCategory category;
     public ItemType itemType;
     public string animation;
+    //TODO usa strategy
+    //https://refactoring.guru/design-patterns/strategy
+    //https://refactoring.guru/design-patterns/strategy/csharp/example
     public override void Use(GameObject c)
     {
         var character = c.GetComponent<Character>();

@@ -99,4 +99,8 @@ public class Timer : MonoBehaviour
     {
         timeRemaining -= amount;
     }
+    public bool HaveTimeForAction(float actionCost)
+    {
+        return timeRemaining > actionCost;
+    }
 }

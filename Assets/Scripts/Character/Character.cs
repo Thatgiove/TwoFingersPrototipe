@@ -551,7 +551,7 @@ namespace Assets.Scripts.Character
                 return;
             }
 
-            if (weapon && weaponComponent && !weaponComponent.isEmpty())
+            if (weapon && weaponComponent && !weaponComponent.isEmpty() && timer.HaveTimeForAction(weaponComponent.timeCost))
             {
                 weaponComponent.Shoot();
                 TriggerShootAnimation();
@@ -562,6 +562,7 @@ namespace Assets.Scripts.Character
             }
         }
 
+     
 
         public void Reload()
         {

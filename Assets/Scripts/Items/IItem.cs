@@ -11,6 +11,7 @@ namespace Assets.Scripts.Items
         public int order;
         public float buyValue;
         public float sellValue; 
+        public float timeCost; 
         public abstract void Use(GameObject c); //DEPRECATED
         public abstract void TriggerAnimation(GameObject c);
     }

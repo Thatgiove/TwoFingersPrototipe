@@ -1226,14 +1226,12 @@ MonoBehaviour:
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
   inventory:
-  - quantity: 3
+  - quantity: 1
     item: {fileID: 11400000, guid: 6af38f1eb468fba4db2ef6e2d653b069, type: 2}
-  - quantity: 2
+  - quantity: 1
     item: {fileID: 11400000, guid: 732981ea0103b2d4db607a83aa088668, type: 2}
   - quantity: 1
-    item: {fileID: 11400000, guid: f3061edee8f8f5e418ee506c9fc60be7, type: 2}
-  - quantity: 2
-    item: {fileID: 11400000, guid: 0ccc5f662355c674dacdc3d5bf5af696, type: 2}
+    item: {fileID: 11400000, guid: 245d2291cdb03b14aa17e107d03a5dc7, type: 2}
   isDead: 0
   tension: 0
   characterTurnTime: 0
@@ -3565,7 +3563,7 @@ MonoBehaviour:
   shootType: 2
   totalAmmo: 100
   magazine: 12
-  timeCost: 1
+  timeCost: 2
   WeaponCanvas: {fileID: 345961931}
 --- !u!82 &700918963
 AudioSource:
@@ -8545,7 +8543,7 @@ MonoBehaviour:
   armor: {fileID: 0}
   otherCharacter: {fileID: 0}
   inventory:
-  - quantity: 2
+  - quantity: 1
     item: {fileID: 11400000, guid: 6af38f1eb468fba4db2ef6e2d653b069, type: 2}
   isDead: 0
   tension: 0

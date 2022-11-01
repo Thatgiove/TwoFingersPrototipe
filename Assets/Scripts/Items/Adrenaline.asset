@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c315b26cee8dff043b4766112eaf0db3, type: 3}
-  m_Name: Potion
+  m_Name: Adrenaline
   m_EditorClassIdentifier: 
-  id: 0
-  name: Potion
-  icon: {fileID: 21300000, guid: e0f89c27f7e46c549804b6cd2a4c1056, type: 3}
-  description: '"Restore 9.5 HP"'
+  id: 2234
+  name: Adrenaline
+  icon: {fileID: 21300000, guid: ec274707b93dc624886c825c5296700b, type: 3}
+  description: 'Adds 10'''' to time '
   order: 0
-  buyValue: 10
-  sellValue: 4
-  value: 9.5
+  buyValue: 1
+  sellValue: 1
+  timeCost: 3
+  value: 10
   category: 1
-  itemType: 0
+  itemType: 6
   animation: 

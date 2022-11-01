@@ -10,7 +10,8 @@ public class ControlPanel : MonoBehaviour
 {
 
     public Character character;
-    [SerializeField] GameObject inventory;
+    [SerializeField] GameObject buttonGrid;
+    [SerializeField] GameObject cardTemplate;
     CombatGameMode combatGameMode;
 
     Transform skillsButton; //il menu dell'attacco nel playerCanvas
@@ -55,19 +56,43 @@ public class ControlPanel : MonoBehaviour
 
     public void SetPlayerInventory()
     {
-        //TODO Non deve essere chiamata da Enemy 
-        if (!character || !inventory || character.GetComponent<AIController>()) return;
+        //Non deve essere chiamata da Enemy 
+        if (!character  || 
+            !buttonGrid || 
+            !cardTemplate || 
+            character.GetComponent<AIController>()) return;
 
-        var firstObject = inventory.transform.GetChild(0);
-        if (firstObject)
+        if(character.inventory.Length > 0)
         {
-            firstObject.GetComponent<Image>().sprite = character.inventory[0].item.icon;
-            firstObject.GetComponent<Button>().onClick.AddListener(delegate { UseItem(character.inventory[0].item); });
+            
+            foreach (Transform child in buttonGrid.transform)
+            {
+                Destroy(child.gameObject);
+            }
+
+            for (int i = 0; i < character.inventory.Length; i++)
+            {
+                IItem item = character.inventory[i].item;
+
+                //Crea N card template in base agli oggetti dell'inventario del player
+                GameObject ct = Instantiate(cardTemplate);
+
+                ct.transform.SetParent(buttonGrid.transform);
+                ct.name = item.name;
+                ct.GetComponent<Button>().onClick.AddListener(delegate { UseItemTEST(item); });
+
+                ct.transform.Find("cardName").GetComponent<Text>().text = item.name;
+                ct.transform.Find("cardDescription").GetComponent<TMP_Text>().text = item.description;
+                ct.transform.Find("manaCost").GetComponent<TMP_Text>().text = item.timeCost.ToString();
+                ct.transform.Find("imgPanel").transform.GetChild(0).GetComponent<Image>().sprite = item.icon;
+            }
         }
-       
     }
 
-
+    void UseItemTEST(IItem item)
+    {
+        print("USE: " + item.name);
+    }
     void UseItem(IItem item)
     {
         if (combatGameMode)
@@ -131,5 +156,8 @@ public class ControlPanel : MonoBehaviour
     //        }
     //    }
     //}
+
+    //Ad ogni turno costuisco la lista delle carte dei personaggi
+
 }
 
