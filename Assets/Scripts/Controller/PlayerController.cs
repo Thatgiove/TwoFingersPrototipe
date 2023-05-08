@@ -11,10 +11,13 @@ public class PlayerController : BaseController
     RaycastHit hit;
     Transform enemy;
     Character player;
+    CharacterController characterController;
+    Vector3 movementDirection;
 
     void Awake()
     {
         player = GetComponent<Character>();
+        characterController = GetComponent<CharacterController>();
     }
     void Start()
     {
@@ -22,49 +25,62 @@ public class PlayerController : BaseController
 
     void Update()
     {
+        Rotate();
+        Move();
 
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        //reloading
+        //if (Input.GetKeyDown(KeyCode.R) && player && player.weapon && !player.isReloading)
+        //{
+        //    player.Reload();
+        //}
+
+        //passa il turno
+        //if (Input.GetKeyDown(KeyCode.Space) && player && !player.isReloading)
+        //{
+        //    FindObjectOfType<CombatGameMode>().EndTurn();
+        //}
+
+        //set Aim mode
+        //if (Input.GetMouseButtonDown(1))
+        //{
+        //    player.SetCombatMode(CombatMode.AimMode);
+        //}
+        //if (Input.GetMouseButtonUp(1))
+        //{
+        //    player.SetCombatMode(CombatMode.ShootingMode);
+        //}
+    }
+
+    void Rotate()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit))
         {
-            bool isOverUI = UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
-           
-            //se il cursore passa sul nemico effettuo una rotazione sulla sua position
-            if (Input.GetMouseButtonDown(0) && hit.transform.gameObject.GetComponent<Character>() && !isOverUI)
+            //Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.red);
+
+            Vector3 targetPosition = ray.GetPoint(hit.distance);
+            Vector3 direction = targetPosition - transform.position;
+            direction.y = 0f; // Imposta la componente Y a 0 per ruotare solo intorno all'asse Y
+
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 12 * Time.deltaTime);
+
+            if (Input.GetMouseButtonDown(0))
             {
-                //Seleziono il personaggio SelectCharacter in CombatGame mode
-                EventManager<OnCharacterSelection>.Trigger?.Invoke(hit.transform.gameObject);
 
-                //se seleziono un nemico e sono in modalità attacco
-                if (hit.transform.gameObject.GetComponent<AIController>() && player.combatMode == CombatMode.AimMode)
-                {
-                    RotateToCharacter(2f, gameObject, hit.transform.gameObject);
-                    player.ActiveShoot(hit.transform.gameObject);
-                }
+                print(hit.transform.gameObject.name);
             }
-        }
-
-        //reloading
-        if (Input.GetKeyDown(KeyCode.R) && player && player.weapon && !player.isReloading)
-        {
-            player.Reload();
-        }
-
-        //passa il turno
-        if (Input.GetKeyDown(KeyCode.Space) && player && !player.isReloading)
-        {
-            FindObjectOfType<CombatGameMode>().EndTurn();
-        }
-
-        //set Aim mode
-        if (Input.GetMouseButtonDown(1))
-        {
-            player.SetCombatMode(CombatMode.AimMode);
-        }
-        if (Input.GetMouseButtonUp(1))
-        {
-            player.SetCombatMode(CombatMode.ShootingMode);
         }
     }
 
+    void Move()
+    {
+        var input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        input = transform.TransformDirection(input);
+        movementDirection = input;
+        characterController.Move(movementDirection * 5 * Time.deltaTime);
+    }
 }

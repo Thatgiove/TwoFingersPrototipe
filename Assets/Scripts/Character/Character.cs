@@ -135,6 +135,8 @@ namespace Assets.Scripts.Character
         bool skillsMenuOpen = false;
         bool charactersMenuOpen = false;
 
+    
+
         void Awake()
         {
             //TODO - singleton?
@@ -145,6 +147,8 @@ namespace Assets.Scripts.Character
             {
                 characterTurnTime = timer.GetStandardTurnTime();
             }
+
+      
         }
 
         void Start()
@@ -160,7 +164,6 @@ namespace Assets.Scripts.Character
 
             if (lifePanel)
             {
-                //TODO --- MMMM
                 lifePanel.transform.Find("Health").Find("MaxHealthValue").GetComponent<Text>().text = maxHealth.ToString();
                 health = maxHealth;
             }
@@ -188,7 +191,6 @@ namespace Assets.Scripts.Character
                 itemsButton?.GetComponent<Button>().onClick.AddListener(ToggleItemsMenu);
                 //skillsButton?.GetComponent<Button>().onClick.AddListener(printTHIS);
 
-
             }
 
             damageUI = gameObject.transform.Find("Damage");
@@ -212,7 +214,13 @@ namespace Assets.Scripts.Character
                 lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
                 lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount = NormalizedHealth(health);
             }
+
+            
+            
+
+
         }
+       
 
         void CreateItemsDropdown()
         {

@@ -289,6 +289,7 @@ public class CombatGameMode : MonoBehaviour
     // nella turnazione
     void CreateTurn()
     {
+        if (!canvas) return;
         //TODO - Ci indica l'azione del nemico
         enemyTurnText = canvas?.transform.Find("EnemyTurnText").GetComponent<Text>();
         enemyTurnText.enabled = false;
