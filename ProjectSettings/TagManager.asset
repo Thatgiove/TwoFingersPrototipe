@@ -9,6 +9,7 @@ TagManager:
   - LifePanel
   - PlayerPanel
   - AmmoUI
+  - Ground
   layers:
   - Default
   - TransparentFX

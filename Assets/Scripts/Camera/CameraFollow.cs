@@ -2,17 +2,40 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform target; 
-    public float smoothSpeed = 0.125f;
-    Vector3 offset;
-    void Start()
+    public Transform target;
+    public float moveSpeed = 20f;     // Velocità di movimento della telecamera
+    public float rotationSpeed = 20f; // Velocità di rotazione della telecamera
+    private float distance;
+    bool isRotating;
+
+    private void Start()
     {
-        offset = transform.position - target.position;
+        distance = Vector3.Distance(transform.position, target.position);
     }
-    void LateUpdate()
+
+    private void LateUpdate()
     {
-        Vector3 desiredPosition = target.position + offset;
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        transform.position = smoothedPosition;
+        if (Input.GetMouseButtonDown(1))
+        {
+            isRotating = true;
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            isRotating = false;
+        }
+
+        if (isRotating)
+        {
+            float mouseX = Input.GetAxis("Mouse X");
+
+            // Ruota la telecamera intorno all'asse Y
+            transform.RotateAround(target.position, Vector3.up, mouseX * rotationSpeed);
+        }
+
+        // Aggiorna la posizione della telecamera mantenendo la stessa distanza dal giocatore
+        transform.position = target.position - transform.forward * distance;
+
+        // Fai in modo che la telecamera guardi sempre in direzione del giocatore
+        transform.LookAt(target);
     }
 }

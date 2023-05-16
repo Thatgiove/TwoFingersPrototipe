@@ -1,8 +1,9 @@
 using Assets.Scripts.Character;
 using Assets.Scripts.Controller;
-using Assets.Scripts.Delegates;
-using Assets.Scripts.Utils;
+using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 public class PlayerController : BaseController
 {
@@ -13,6 +14,8 @@ public class PlayerController : BaseController
     Character player;
     CharacterController characterController;
     Vector3 movementDirection;
+    NavMeshAgent navMeshAgent;
+
 
     void Awake()
     {
@@ -21,6 +24,7 @@ public class PlayerController : BaseController
     }
     void Start()
     {
+        navMeshAgent = GetComponent<NavMeshAgent>();
     }
 
     void Update()
@@ -28,30 +32,49 @@ public class PlayerController : BaseController
         Rotate();
         Move();
 
-
-        //reloading
-        //if (Input.GetKeyDown(KeyCode.R) && player && player.weapon && !player.isReloading)
+        //With navmesh
+        //if (Input.GetMouseButtonDown(0))
         //{
-        //    player.Reload();
+        //    MoveToClickPoint();
         //}
 
-        //passa il turno
-        //if (Input.GetKeyDown(KeyCode.Space) && player && !player.isReloading)
+        //if (Input.GetMouseButton(1))
         //{
-        //    FindObjectOfType<CombatGameMode>().EndTurn();
-        //}
-
-        //set Aim mode
-        //if (Input.GetMouseButtonDown(1))
-        //{
-        //    player.SetCombatMode(CombatMode.AimMode);
-        //}
-        //if (Input.GetMouseButtonUp(1))
-        //{
-        //    player.SetCombatMode(CombatMode.ShootingMode);
+        //    RotateCharacter();
         //}
     }
 
+    void MoveToClickPoint()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if(Physics.Raycast(ray, out hit))
+        {
+            if (hit.collider.CompareTag("Ground"))
+            {
+                navMeshAgent.SetDestination(hit.point);
+            }
+            else if (hit.transform.GetComponent<Enemy>())
+            {
+                Vector3 direction = hit.transform.position - transform.position;
+                transform.rotation = Quaternion.LookRotation(direction);
+
+                hit.transform.GetComponent<Character>().TakeDamage(4); //TODO - weapom damage
+            }
+        }
+    }
+
+    void RotateCharacter()
+    {
+        float mouseX = Input.GetAxis("Mouse X");
+
+        // Calcola l'angolo di rotazione in base alla velocità di rotazione e all'input del mouse
+        float rotationAngle = mouseX * 7;
+
+        // Applica la rotazione sull'asse Y
+        transform.Rotate(Vector3.up, rotationAngle);
+    }
     void Rotate()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -68,10 +91,20 @@ public class PlayerController : BaseController
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 12 * Time.deltaTime);
 
-            if (Input.GetMouseButtonDown(0))
+            if (hit.transform.GetComponent<Enemy>())
             {
+                enemy = hit.transform;
 
-                print(hit.transform.gameObject.name);
+                if (Input.GetMouseButtonDown(0))
+                {
+                    //GetComponent<Character>().Shoot();
+                    hit.transform.GetComponent<Character>().TakeDamage(4); //TODO - weapom damage
+                }
+                    
+            }
+            else
+            {
+                enemy = null;
             }
         }
     }
@@ -81,6 +114,7 @@ public class PlayerController : BaseController
         var input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         input = transform.TransformDirection(input);
         movementDirection = input;
-        characterController.Move(movementDirection * 5 * Time.deltaTime);
+        characterController.Move(movementDirection * 10 * Time.deltaTime);
+    
     }
 }

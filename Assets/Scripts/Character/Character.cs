@@ -204,21 +204,11 @@ namespace Assets.Scripts.Character
 
         void Update()
         {
-            if (isDead)
-            {
-                print("DIE");
-            }
-            //TODO -?
-            if (lifePanel)
+            if (lifePanel && !isDead)
             {
                 lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
                 lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount = NormalizedHealth(health);
             }
-
-            
-            
-
-
         }
        
 
@@ -587,7 +577,8 @@ namespace Assets.Scripts.Character
             //TODO - alla morte deve disabilitare il controller, non il Character
             GetComponent<Character>().enabled = false;
             GetComponent<CapsuleCollider>().enabled = false;
-
+            isDead = true;
+            lifePanel.gameObject.SetActive(false);
             EventManager<OnRemoveCharacterFromIconList>.Trigger?.Invoke(gameObject);
         }
 
