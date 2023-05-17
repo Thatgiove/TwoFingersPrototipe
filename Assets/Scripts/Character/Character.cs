@@ -204,7 +204,7 @@ namespace Assets.Scripts.Character
 
         void Update()
         {
-            if (lifePanel && !isDead)
+            if (lifePanel)
             {
                 lifePanel.transform.Find("Health").Find("HealthValue").GetComponent<Text>().text = health.ToString("0.0");
                 lifePanel.transform.Find("Health").GetComponent<Image>().fillAmount = NormalizedHealth(health);
@@ -484,8 +484,21 @@ namespace Assets.Scripts.Character
             else if(amount > 0)
             {
                 TriggerHitReactionAnimation();
+                SetDamageUi(amount);
             }
         }
+
+        void SetDamageUi(float _amount)
+        {
+            lifePanel.transform.Find("DamageValue").GetComponent<TMP_Text>().text = _amount.ToString("0.0");
+            StartCoroutine(CancelText());
+        }
+        IEnumerator CancelText()
+        {
+            yield return new WaitForSeconds(.5f);
+            lifePanel.transform.Find("DamageValue").GetComponent<TMP_Text>().text = "";
+        }
+
         //La tensionbar è direttamente proporzionale all'avanzare del turno
         public void SetTensionBar(float tensionAmount)
         {
@@ -522,6 +535,9 @@ namespace Assets.Scripts.Character
 
         public void Shoot()
         {
+            TriggerShootAnimation();
+            return;
+
             if (isReloading)
             {
                 return;

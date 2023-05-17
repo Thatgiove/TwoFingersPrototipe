@@ -1,26 +1,25 @@
 using Assets.Scripts.Character;
 using Assets.Scripts.Controller;
-using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
 
 public class PlayerController : BaseController
 {
-    public bool enableRotation;
-    Ray ray;
-    RaycastHit hit;
+    float velocity = 10f;
+
     Transform enemy;
-    Character player;
+    Character character;
+
     CharacterController characterController;
     Vector3 movementDirection;
     NavMeshAgent navMeshAgent;
-
+    CameraFollow cameraFollow;
 
     void Awake()
     {
-        player = GetComponent<Character>();
+        character = GetComponent<Character>();
         characterController = GetComponent<CharacterController>();
+        cameraFollow = Camera.main.GetComponent<CameraFollow>();
     }
     void Start()
     {
@@ -37,7 +36,6 @@ public class PlayerController : BaseController
         //{
         //    MoveToClickPoint();
         //}
-
         //if (Input.GetMouseButton(1))
         //{
         //    RotateCharacter();
@@ -60,7 +58,7 @@ public class PlayerController : BaseController
                 Vector3 direction = hit.transform.position - transform.position;
                 transform.rotation = Quaternion.LookRotation(direction);
 
-                hit.transform.GetComponent<Character>().TakeDamage(4); //TODO - weapom damage
+                hit.transform.GetComponent<Character>().TakeDamage(1.5f); //TODO - weapom damage
             }
         }
     }
@@ -77,6 +75,8 @@ public class PlayerController : BaseController
     }
     void Rotate()
     {
+        if (cameraFollow.isRotating) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -97,8 +97,8 @@ public class PlayerController : BaseController
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    //GetComponent<Character>().Shoot();
-                    hit.transform.GetComponent<Character>().TakeDamage(4); //TODO - weapom damage
+                    character.Shoot();
+                    hit.transform.GetComponent<Character>().TakeDamage(1.5f); //TODO - weapom damage
                 }
                     
             }
@@ -114,7 +114,6 @@ public class PlayerController : BaseController
         var input = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         input = transform.TransformDirection(input);
         movementDirection = input;
-        characterController.Move(movementDirection * 10 * Time.deltaTime);
-    
+        characterController.Move(movementDirection * velocity * Time.deltaTime);
     }
 }

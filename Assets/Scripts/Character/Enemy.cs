@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.AI;
 
 namespace Assets.Scripts.Character
 {
@@ -15,11 +14,6 @@ namespace Assets.Scripts.Character
             return Random.Range(.5f, maxTime);
         }
 
-        private void Update()
-        {
-            //Vector3 direction = target.position - transform.position;
-            //transform.rotation =  Quaternion.LookRotation(direction);
-        }
 
         void ChangeMaterial(Material _material)
         {

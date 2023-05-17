@@ -6,7 +6,7 @@ public class CameraFollow : MonoBehaviour
     public float moveSpeed = 20f;     // Velocità di movimento della telecamera
     public float rotationSpeed = 20f; // Velocità di rotazione della telecamera
     private float distance;
-    bool isRotating;
+    public bool isRotating { get; set; }
 
     private void Start()
     {
@@ -17,10 +17,12 @@ public class CameraFollow : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
+            Cursor.visible = false;
             isRotating = true;
         }
         else if (Input.GetMouseButtonUp(1))
         {
+            Cursor.visible = true;
             isRotating = false;
         }
 

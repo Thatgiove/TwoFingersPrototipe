@@ -2,8 +2,6 @@ using Assets.Scripts.Character;
 using Assets.Scripts.Controller;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.HID;
-
 
 public class AIController : BaseController
 {
@@ -20,8 +18,12 @@ public class AIController : BaseController
 
     void Update()
     {
-        navMeshAgent.SetDestination(target.position);
-
-        if (enemy != null && enemy.isDead) { navMeshAgent.isStopped = true; }
+        if (!enemy.isDead)
+        {
+            navMeshAgent.SetDestination(target.position);
+            Vector3 direction = target.position - transform.position;
+            transform.rotation = Quaternion.LookRotation(direction);
+            enemy.Shoot();
+        }
     }
 }
