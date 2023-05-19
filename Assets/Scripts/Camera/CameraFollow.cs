@@ -15,12 +15,12 @@ public class CameraFollow : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(2))
         {
             Cursor.visible = false;
             isRotating = true;
         }
-        else if (Input.GetMouseButtonUp(1))
+        else if (Input.GetMouseButtonUp(2))
         {
             Cursor.visible = true;
             isRotating = false;

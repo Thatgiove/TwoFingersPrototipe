@@ -2,6 +2,8 @@ using Assets.Scripts.Character;
 using Assets.Scripts.Controller;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.XR;
 
 public class PlayerController : BaseController
 {
@@ -28,14 +30,16 @@ public class PlayerController : BaseController
 
     void Update()
     {
-        Rotate();
-        Move();
+
+        //Rotate();
+        //Move();
+
 
         //With navmesh
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    MoveToClickPoint();
-        //}
+        if (Input.GetMouseButtonDown(0))
+        {
+            MoveToClickPoint();
+        }
         //if (Input.GetMouseButton(1))
         //{
         //    RotateCharacter();

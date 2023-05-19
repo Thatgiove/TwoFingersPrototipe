@@ -20,10 +20,10 @@ public class AIController : BaseController
     {
         if (!enemy.isDead)
         {
-            navMeshAgent.SetDestination(target.position);
+            //navMeshAgent.SetDestination(target.position);
             Vector3 direction = target.position - transform.position;
             transform.rotation = Quaternion.LookRotation(direction);
-            enemy.Shoot();
+            //enemy.Shoot();
         }
     }
 }
